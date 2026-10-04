@@ -21,4 +21,6 @@ Both reviewers agreed to the eleven-item roadmap before implementation. Their in
 - Unsupported researched prices are discarded. A bounded second attempt can save a source-only comparison with zero offers and an explicit unverified-price notice; it cannot salvage ungrounded prices.
 - PostgreSQL JSONB reorders object keys. Migration compares ordered document IDs, titles and complete bodies rather than serialized property order. All eight hosted-handler variants also pass against Neon, including altered-document rejection.
 
+- Final artifact inspection caught the already-revoked synthetic merchant capability in browser chrome. The browser now removes it with history replacement after state verification and before capture, without navigating or replaying a merchant write. The release screenshot is replaced with the redacted run.
+
 No reviewer finding was deferred. Final live results are recorded in `../release-verification.md`.

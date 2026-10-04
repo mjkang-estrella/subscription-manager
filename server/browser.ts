@@ -104,6 +104,19 @@ export async function runBrowserAction(
           a.steps[2].status = "done";
           a.steps[3].status = "running";
         });
+        // Screenshots include browser chrome. Remove the per-run capability from
+        // the address bar after verification, without navigating or replaying a write.
+        const hidden = await client.browsers.playwright.execute(
+          browserId,
+          {
+            code: `await page.evaluate(() => history.replaceState(null, '', location.pathname)); return true;`,
+          },
+          { signal },
+        );
+        if (!hidden.success)
+          throw new Error(
+            "Could not remove the private link before capturing the receipt.",
+          );
         const screenshot = await client.browsers.computer.captureScreenshot(
           browserId,
           undefined,
