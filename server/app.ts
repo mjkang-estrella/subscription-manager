@@ -1,5 +1,6 @@
 import "dotenv/config";
 import express from "express";
+import { readPublicHistory } from "./publication.js";
 import { getSession, setSession, deleteSession } from "./sessions.js";
 import { z } from "zod";
 import evidenceRouter from "./evidence.js";
@@ -38,6 +39,13 @@ app.use((req, res, next) => {
   res.status(401).send("Private preview. Open the authorized preview link.");
 });
 app.use(express.json({ limit: "2mb" }));
+app.get("/api/public/workspace", async (_req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+  const snapshot = await readPublicHistory();
+  res
+    .status(snapshot ? 200 : 404)
+    .json(snapshot ?? { error: "No public snapshot published." });
+});
 app.use("/api", (req, res, next) => {
   res.setHeader("Cache-Control", "no-store");
   if (!["GET", "HEAD"].includes(req.method)) {

@@ -68,7 +68,9 @@ export function SubscriptionList({
   onOpen,
   onAddData,
   onExport,
+  readOnly = false,
 }: {
+  readOnly?: boolean;
   subscriptions: Subscription[];
   onOpen: (s: Subscription) => void;
   onAddData: () => void;
@@ -136,7 +138,7 @@ export function SubscriptionList({
     <section className="panel subscriptions-panel">
       <div className="panel-heading">
         <div className="inline-heading">
-          <h2>Your subscriptions</h2>
+          <h2>{readOnly ? "Subscriptions" : "Your subscriptions"}</h2>
           <span className="count-pill">{subscriptions.length}</span>
         </div>
         <button className="text-button" onClick={onExport}>
@@ -317,14 +319,16 @@ export function SubscriptionList({
         <div className="empty-state">
           <Layers3 size={27} />
           <h3>
-            {q ? "No matching subscriptions" : "A little breathing room."}
+            {q || readOnly
+              ? "No matching subscriptions"
+              : "A little breathing room."}
           </h3>
           <p>
-            {q
-              ? "Try a different name or category."
+            {q || readOnly
+              ? "Try a different name, category, or status."
               : "Import a statement or receipts, or add one yourself."}
           </p>
-          {!q && (
+          {!q && !readOnly && (
             <button className="button secondary" onClick={onAddData}>
               Add data
             </button>
@@ -335,10 +339,12 @@ export function SubscriptionList({
         <span>
           {filtered.length} shown · {subscriptions[0]?.currency ?? "USD"}
         </span>
-        <button className="text-button" onClick={onAddData}>
-          <Upload size={14} />
-          Add data
-        </button>
+        {!readOnly && (
+          <button className="text-button" onClick={onAddData}>
+            <Upload size={14} />
+            Add data
+          </button>
+        )}
       </div>
     </section>
   );

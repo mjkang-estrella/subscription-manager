@@ -1,0 +1,119 @@
+.public-main {
+  margin: 0 auto;
+  max-width: 1280px;
+  padding: 28px 40px 48px;
+}
+.public-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 36px;
+}
+.public-wordmark {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: -0.03em;
+}
+.public-wordmark span {
+  color: var(--green);
+}
+.public-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-size: 13px;
+}
+.public-main .page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.public-main .metrics {
+  margin-bottom: 24px;
+}
+.public-composition {
+  margin-bottom: 28px;
+}
+.public-main .subscriptions-panel {
+  margin-bottom: 28px;
+}
+.public-renewals {
+  padding-bottom: 12px;
+}
+.public-renewal {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 24px;
+  text-align: left;
+  border: 0;
+  border-top: 1px solid var(--border);
+  background: transparent;
+}
+.public-renewal:hover {
+  background: var(--surface-hover, #f3f5ef);
+}
+.public-renewal > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.public-renewal small {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-muted);
+}
+.public-footer {
+  margin-top: 24px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.public-detail-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.public-detail .detail-price {
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+.public-detail .charge-history {
+  margin-top: 24px;
+}
+.public-loading {
+  max-width: 600px;
+  margin: 20vh auto;
+  padding: 24px;
+}
+@media (max-width: 760px) {
+  .public-main {
+    padding: 20px 16px 32px;
+  }
+  .public-header {
+    align-items: flex-start;
+    padding-bottom: 28px;
+  }
+  .public-header-actions {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    font-size: 12px;
+  }
+  .public-main .page-heading h1 {
+    font-size: 28px;
+  }
+  .public-main .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .public-main .table-controls {
+    flex-wrap: wrap;
+  }
+  .public-renewal {
+    padding: 14px 16px;
+  }
+}
