@@ -1,0 +1,1 @@
+{"manifest_version":3,"name":"Folio usage companion","version":"1.0.0","description":"Summarize visits to subscription domains locally, then export only aggregate counts to Folio.","optional_permissions":["history"],"action":{"default_popup":"popup.html"}}
