@@ -4119,3 +4119,42 @@ td {
     gap: 8px;
   }
 }
+.dismiss-opportunity {
+  display: block;
+  margin: 8px auto 0;
+  min-height: 44px;
+}
+.dismissed-opportunity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-block: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.dismissed-opportunity strong {
+  font-size: 0.875rem;
+}
+.dismissed-opportunity p {
+  color: var(--text-muted);
+  margin: 5px 0 0;
+  font-size: 0.8125rem;
+}
+
+/* Let useful data lead after removing explanatory filler. */
+.savings-spotlight h2 {
+  font-size: 1.125rem;
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+.savings-spotlight .spotlight-amount {
+  margin-top: 24px;
+}
+.sidebar nav {
+  margin-top: 24px;
+}
+.savings-spotlight {
+  align-self: start;
+}

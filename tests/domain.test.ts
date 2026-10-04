@@ -143,3 +143,18 @@ test("reverse chronological CSV keeps the latest charge amount", async () => {
   );
   assert.equal(rows[0].price, 15);
 });
+
+test("dismissed opportunities are excluded without changing subscriptions", () => {
+  const { subscriptions } = createWorkspace();
+  const original = structuredClone(subscriptions);
+  const all = recommendations(subscriptions);
+  const [dismissed] = all;
+  assert.ok(dismissed);
+  const remaining = recommendations(subscriptions, [dismissed.id]);
+  assert.deepEqual(
+    remaining,
+    all.filter((r) => r.id !== dismissed.id),
+  );
+  assert.deepEqual(subscriptions, original);
+  assert.deepEqual(recommendations(subscriptions, []), all);
+});

@@ -2,7 +2,7 @@
 
 Verified on October 4, 2026.
 
-- `npm test`: 11 passing tests for billing calculations, month-end dates, evidence semantics, chronological imports, validation, and fixture escaping.
+- `npm test`: 12 passing tests for billing calculations, month-end dates, evidence semantics, chronological imports, validation, and fixture escaping.
 - `npm run test:integration`: passed creation/edit/removal, persistence, workspace isolation, CSV review and duplicate prevention, validation, and cross-origin request protection.
 - `npm run build`: TypeScript checking and production build passed.
 - Live Neon Postgres: isolated workspaces persisted and were read back.
@@ -18,3 +18,5 @@ Verified on October 4, 2026.
 Gmail OAuth was not exercised because Google OAuth app credentials were not supplied. No real merchant cancellation or migration was performed. Real account authentication remains a user action in the isolated browser; all tested execution used synthetic accounts and records.
 
 UI update: replaced the monthly bar projection with a composition donut, sorted by monthly equivalent cost. Verified the $135.45 sample total, GitHub annual normalization ($48/year to $4/month), 44px legend controls, opening subscription details, and 390px/1440px layouts. The chart panel had no automated axe violations; TypeScript and the production build passed.
+
+Annotation updates: removed sidebar promotional content and redundant interface copy. Dismissal persists per workspace, excludes opportunities from savings totals and assistant suggestions, and supports restoration. Integration checks cover persistence, workspace isolation, idempotence, invalid inputs, and restore. Browser flow verified dismissal across reload and restoration ($79.98 to $19.99 and back); subscription cost stayed $135.45.

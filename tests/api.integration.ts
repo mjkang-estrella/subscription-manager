@@ -20,6 +20,33 @@ async function request(
 }
 const start = await request("/api/workspace");
 assert.equal(start.body.subscriptions.length, 8);
+const dismissPath = "/api/opportunities/adobe-cancel/dismiss";
+const dismissed = await request(dismissPath, { dismissed: true });
+assert.equal(dismissed.status, 200);
+assert.deepEqual(dismissed.body.dismissedOpportunityIds, ["adobe-cancel"]);
+assert.deepEqual(
+  (await request("/api/workspace")).body.dismissedOpportunityIds,
+  ["adobe-cancel"],
+);
+assert.deepEqual(dismissed.body.subscriptions, start.body.subscriptions);
+assert.deepEqual(
+  (await request(dismissPath, { dismissed: true })).body
+    .dismissedOpportunityIds,
+  ["adobe-cancel"],
+);
+const isolated = await fetch(base + "/api/workspace");
+assert.deepEqual((await isolated.json()).dismissedOpportunityIds ?? [], []);
+assert.equal((await request(dismissPath, { dismissed: "yes" })).status, 400);
+assert.equal(
+  (await request("/api/opportunities/missing/dismiss", { dismissed: true }))
+    .status,
+  404,
+);
+assert.deepEqual(
+  (await request(dismissPath, { dismissed: false })).body
+    .dismissedOpportunityIds,
+  [],
+);
 const input = {
   name: "API Test",
   domain: "example.com",
@@ -85,5 +112,5 @@ const origin = await fetch(base + "/api/chat", {
 });
 assert.equal(origin.status, 403);
 console.log(
-  "PASS: create/edit/delete, persistence, workspace isolation, input validation, CSV review + deduplication, cross-origin protection.",
+  "PASS: opportunity dismissal/restoration/isolation, create/edit/delete, persistence, workspace isolation, input validation, CSV review + deduplication, cross-origin protection.",
 );

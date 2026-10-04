@@ -96,3 +96,5 @@ React + TypeScript + Vite, Express, Neon Postgres, Mastra, Neon AI Gateway, Kern
 ## UI audit
 
 The Impeccable audit and remediation report is in [docs/impeccable-audit.md](docs/impeccable-audit.md). It records the fixed findings, automated checks, keyboard and responsive checks, and remaining testing limits.
+
+Savings opportunities can be dismissed from their card or subscription details. Dismissals persist in the workspace and are excluded from savings estimates. Restore an opportunity from its subscription details.

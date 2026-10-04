@@ -205,10 +205,33 @@ export default function App() {
   current.setMonth(current.getMonth() + monthOffset);
   const month = current.toISOString().slice(0, 7);
   const active = data?.subscriptions.filter((s) => s.status === "active") || [];
-  const recs = useMemo(
+  const allRecs = useMemo(
     () => recommendations(data?.subscriptions || []),
     [data],
   );
+  const recs = allRecs.filter(
+    (r) => !data?.dismissedOpportunityIds?.includes(r.id),
+  );
+  const [dismissing, setDismissing] = useState<string | null>(null);
+  const setOpportunityDismissed = async (id: string, dismissed: boolean) => {
+    setDismissing(id);
+    try {
+      const updated = await post<Workspace>(
+        `/api/opportunities/${encodeURIComponent(id)}/dismiss`,
+        { dismissed },
+      );
+      setData(updated);
+      notify(
+        dismissed
+          ? "Opportunity dismissed. You can restore it from subscription details."
+          : "Opportunity restored.",
+      );
+    } catch (error) {
+      notify((error as Error).message);
+    } finally {
+      setDismissing(null);
+    }
+  };
   const savings = recs.reduce((a, r) => a + r.savings, 0),
     monthlyTotal = active.reduce((a, s) => a + monthly(s), 0);
   const scheduled = active
@@ -316,12 +339,9 @@ export default function App() {
           }}
         >
           <span className="workspace-avatar">M</span>
-          <span>
-            Personal workspace<small>Make room for what matters</small>
-          </span>
+          <span>Personal workspace</span>
           <ChevronDown size={15} />
         </button>
-        <span className="nav-label">WORKSPACE</span>
         <nav aria-label="Primary navigation">
           {NAV.map((item) => (
             <button
@@ -339,25 +359,6 @@ export default function App() {
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <div className="agent-promo">
-            <span className="promo-stars">
-              <Sparkles size={21} />
-            </span>
-            <h3>
-              Less admin.
-              <br />
-              More living.
-            </h3>
-            <p>Let Folio find a little breathing room in your budget.</p>
-            <button
-              onClick={() => {
-                setSidebar(false);
-                setChat(true);
-              }}
-            >
-              Ask your assistant <ArrowUpRight size={15} />
-            </button>
-          </div>
           <button
             className="sidebar-link"
             onClick={() => {
@@ -380,14 +381,7 @@ export default function App() {
           </button>
           <div className="profile">
             <span className="profile-avatar">M</span>
-            <div>
-              My workspace
-              <small>
-                {data?.mode === "demo"
-                  ? "Exploring with demo data"
-                  : "Personal subscriptions"}
-              </small>
-            </div>
+            <div>My workspace</div>
             <button
               className="icon-button"
               aria-label="Workspace options"
@@ -438,28 +432,7 @@ export default function App() {
         <main id="main-content" className="main-content" tabIndex={-1}>
           <div className="page-heading">
             <div>
-              <h1>
-                {page === "overview"
-                  ? "Your subscriptions, in balance."
-                  : page === "subscriptions"
-                    ? "Everything you subscribe to."
-                    : page === "calendar"
-                      ? "No more surprise renewals."
-                      : page === "savings"
-                        ? "Make more room in your budget."
-                        : "Good decisions, accounted for."}
-              </h1>
-              <p>
-                {page === "overview"
-                  ? "Know what’s going out. Keep what’s worth it."
-                  : page === "subscriptions"
-                    ? "One place for every plan, payment, and possibility."
-                    : page === "calendar"
-                      ? "A clear view of what’s coming up, and when."
-                      : page === "savings"
-                        ? "Thoughtful suggestions, backed by your usage."
-                        : "Review approvals and see exactly what your agent has done."}
-              </p>
+              <h1>{NAV.find((item) => item.id === page)?.name}</h1>
             </div>
             <div className="heading-actions">
               <button
@@ -528,17 +501,6 @@ export default function App() {
                       label="Active subscriptions"
                       value={String(active.length)}
                       icon={<Layers3 size={19} />}
-                      detail={
-                        <>
-                          <span className="mini-dots">
-                            <i />
-                            <i />
-                            <i />
-                          </span>
-                          Across {new Set(active.map((s) => s.category)).size}{" "}
-                          categories
-                        </>
-                      }
                     />
                     <Metric
                       green
@@ -563,7 +525,6 @@ export default function App() {
                       <div className="panel-heading">
                         <div>
                           <h2>Subscription breakdown</h2>
-                          <p>Where your monthly subscription budget goes</p>
                         </div>
                       </div>
                       <SubscriptionComposition
@@ -571,42 +532,23 @@ export default function App() {
                         onSelect={setSelected}
                       />
                       <div className="chart-footer composition-footer">
-                        <span>Share of monthly cost</span>
                         <span>Annual plans divided by 12</span>
                       </div>
                     </section>
                     <section className="savings-spotlight">
-                      <div className="spotlight-top">
-                        <span>
-                          <Sparkles size={18} />A little less spending
-                        </span>
-                        <Sparkles
-                          className="mini-spark"
-                          size={28}
-                          aria-hidden="true"
-                        />
-                      </div>
-                      <h2>
-                        Small changes.
-                        <br />
-                        More possibilities.
-                      </h2>
-                      <p>
-                        We found {recs.length} ways to rethink your
-                        subscriptions and keep more for you.
-                      </p>
+                      <h2>Potential annual savings</h2>
                       <div className="spotlight-amount">
                         {money(savings * 12)}
                         <span>/ year</span>
                       </div>
                       <div className="spotlight-note">
-                        Potential savings ·{" "}
                         {data.mode === "demo"
-                          ? "illustrative demo estimates"
-                          : "based on available evidence"}
+                          ? "Demo estimates"
+                          : "Estimates based on usage"}
                       </div>
                       <button onClick={() => navigate("savings")}>
-                        Explore your savings <ArrowUpRight size={17} />
+                        Review {recs.length} opportunities{" "}
+                        <ArrowUpRight size={17} />
                       </button>
                     </section>
                   </div>
@@ -792,9 +734,6 @@ export default function App() {
                               <Clock3 size={17} />
                             </span>
                           </div>
-                          <p className="panel-subtitle">
-                            Your next scheduled payments
-                          </p>
                           <div className="upcoming-list">
                             {scheduled.slice(0, 4).map(({ sub: s, date }) => (
                               <button key={s.id} onClick={() => setSelected(s)}>
@@ -830,13 +769,6 @@ export default function App() {
                             View payment calendar <ChevronRight size={15} />
                           </button>
                         </section>
-                        <div className="privacy-note">
-                          <ShieldCheck size={21} />
-                          <p>
-                            <strong>Your money. Your call.</strong>Folio asks
-                            before making any changes. You’re always in control.
-                          </p>
-                        </div>
                       </aside>
                     )}
                   </div>
@@ -938,17 +870,10 @@ export default function App() {
                         <Sparkles size={28} />
                       </span>
                       <div>
-                        <span>MORE ROOM FOR WHAT MATTERS</span>
                         <h2>
                           {money(savings)}{" "}
-                          <small>
-                            potentially back in your budget each month
-                          </small>
+                          <small>potential monthly savings</small>
                         </h2>
-                        <p>
-                          Each idea starts with evidence. You decide what’s
-                          worth changing.
-                        </p>
                       </div>
                     </div>
                     <div className="recommendations-grid">
@@ -997,16 +922,32 @@ export default function App() {
                             >
                               Review opportunity <ArrowUpRight size={16} />
                             </button>
+                            <button
+                              className="text-button dismiss-opportunity"
+                              disabled={dismissing !== null}
+                              onClick={() =>
+                                void setOpportunityDismissed(r.id, true)
+                              }
+                            >
+                              {dismissing === r.id
+                                ? "Dismissing…"
+                                : "Dismiss opportunity"}
+                            </button>
                           </section>
                         );
                       })}
                       {!recs.length && (
                         <div className="empty-state">
                           <Sparkles size={30} />
-                          <h3>Let’s get to know your usage.</h3>
+                          <h3>
+                            {allRecs.length
+                              ? "You’re all caught up."
+                              : "Let’s get to know your usage."}
+                          </h3>
                           <p>
-                            Add usage evidence to find meaningful savings.
-                            Missing data never means unused.
+                            {allRecs.length
+                              ? "Dismissed opportunities can be restored from subscription details."
+                              : "Add usage evidence to find meaningful savings. Missing data never means unused."}
                           </p>
                           <button
                             className="button primary"
@@ -1031,8 +972,7 @@ export default function App() {
                   <section className="panel activity-panel">
                     <div className="panel-heading">
                       <div>
-                        <h2>Your agent’s activity</h2>
-                        <p>Every proposal, approval, and verified result.</p>
+                        <h2>Action history</h2>
                       </div>
                       <span className="muted-tag">
                         Controlled test accounts
@@ -1091,9 +1031,6 @@ export default function App() {
                   </section>
                 )}
                 <footer className="page-footer">
-                  <span>
-                    <Leaf size={13} /> A little more intentional, every month.
-                  </span>
                   <span>
                     {data.mode === "demo"
                       ? "Sample subscriptions & usage · No real accounts changed"
@@ -1239,8 +1176,11 @@ export default function App() {
       )}
       {selectedCurrent && (
         <SubscriptionDetail
+          dismissedIds={data?.dismissedOpportunityIds ?? []}
+          onDismiss={setOpportunityDismissed}
+          dismissing={dismissing !== null}
           sub={selectedCurrent}
-          recommendation={recs.find(
+          recommendation={allRecs.find(
             (r) => r.subscriptionId === selectedCurrent.id,
           )}
           onClose={() => setSelected(null)}
@@ -1369,7 +1309,7 @@ function Metric({
 }: {
   label: string;
   value: string;
-  detail: React.ReactNode;
+  detail?: React.ReactNode;
   icon: React.ReactNode;
   green?: boolean;
 }) {
@@ -1380,7 +1320,7 @@ function Metric({
         <span className="metric-icon">{icon}</span>
       </div>
       <div className="metric-value">{value}</div>
-      <div className="metric-detail">{detail}</div>
+      {detail && <div className="metric-detail">{detail}</div>}
     </section>
   );
 }
@@ -1591,9 +1531,9 @@ function ImportModal({
             </div>
             <p className="muted">
               {type === "csv"
-                ? "Import a card export with merchant, amount, and date columns. We’ll group charges, then let you review each potential subscription."
+                ? "Use merchant, amount, and date columns. Review detected subscriptions before importing."
                 : type === "email"
-                  ? "Paste receipt emails or upload an .eml file. The agent extracts potential subscriptions for your review."
+                  ? "Paste receipts or upload an .eml file, then review detected subscriptions."
                   : "Import the JSON summary from the Folio browser extension. Only matching subscription domains are added."}
             </p>
             <label className="upload-zone">
@@ -1830,12 +1770,8 @@ function Connections({
   onNotify: (s: string) => void;
 }) {
   return (
-    <Modal title="Connect your financial picture" onClose={onClose} wide>
+    <Modal title="Connections" onClose={onClose} wide>
       <div className="modal-body">
-        <p className="muted">
-          Choose how to bring your subscriptions and activity into Folio. API
-          credentials stay on the server.
-        </p>
         <div className="connection-list">
           {integrations.map((i) => (
             <div className="connection" key={i.id}>
@@ -1919,6 +1855,9 @@ function Connections({
 function SubscriptionDetail({
   sub,
   recommendation,
+  dismissedIds,
+  onDismiss,
+  dismissing,
   onClose,
   onEdit,
   onPrepare,
@@ -1928,6 +1867,9 @@ function SubscriptionDetail({
 }: {
   sub: Subscription;
   recommendation?: Recommendation;
+  dismissedIds: string[];
+  onDismiss: (id: string, dismissed: boolean) => Promise<void>;
+  dismissing: boolean;
   onClose: () => void;
   onEdit: () => void;
   onPrepare: (kind: ActionKind) => void;
@@ -2041,7 +1983,7 @@ function SubscriptionDetail({
                   <strong>{sub.domain || "Not provided"}</strong>
                 </div>
               </div>
-              {recommendation && (
+              {recommendation && !dismissedIds.includes(recommendation.id) && (
                 <div className="detail-recommendation">
                   <Sparkles size={21} />
                   <h3>{recommendation.title}</h3>
@@ -2058,7 +2000,29 @@ function SubscriptionDetail({
                   >
                     Review test change <ArrowUpRight size={16} />
                   </button>
+                  <button
+                    className="text-button dismiss-opportunity"
+                    disabled={dismissing}
+                    onClick={() => void onDismiss(recommendation.id, true)}
+                  >
+                    {dismissing ? "Dismissing…" : "Dismiss opportunity"}
+                  </button>
                   <small>{recommendation.caveat}</small>
+                </div>
+              )}
+              {recommendation && dismissedIds.includes(recommendation.id) && (
+                <div className="dismissed-opportunity" role="status">
+                  <div>
+                    <strong>Opportunity dismissed</strong>
+                    <p>Hidden from your savings suggestions.</p>
+                  </div>
+                  <button
+                    className="text-button"
+                    disabled={dismissing}
+                    onClick={() => void onDismiss(recommendation.id, false)}
+                  >
+                    {dismissing ? "Restoring…" : "Restore opportunity"}
+                  </button>
                 </div>
               )}
               <div className="detail-section-heading">

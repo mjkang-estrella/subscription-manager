@@ -63,8 +63,7 @@ export default function AgentChat({ onClose }: { onClose: () => void }) {
             <Sparkles size={21} />
           </span>
           <div>
-            <h2>Meet your money’s ally.</h2>
-            <p>Folio assistant · Powered by Neon & Mastra</p>
+            <h2>Folio assistant</h2>
           </div>
           <button
             className="icon-button"
@@ -78,12 +77,6 @@ export default function AgentChat({ onClose }: { onClose: () => void }) {
           <ThreadPrimitive.Root className="chat-thread">
             <ThreadPrimitive.Viewport className="chat-viewport">
               <div className="chat-welcome">
-                <Sparkles size={30} />
-                <h3>A clearer picture, together.</h3>
-                <p>
-                  Ask about your subscriptions, usage, or where you could save.
-                  I’ll show my reasoning.
-                </p>
                 <div className="chat-suggestions">
                   <ThreadPrimitive.Suggestion
                     prompt="Where could I save the most each month?"
@@ -111,7 +104,7 @@ export default function AgentChat({ onClose }: { onClose: () => void }) {
             </ThreadPrimitive.Viewport>
             <ComposerPrimitive.Root className="chat-composer">
               <ComposerPrimitive.Input
-                placeholder="Ask Folio anything about your subscriptions…"
+                placeholder="Ask about your subscriptions…"
                 aria-label="Message Folio"
               />
               <ComposerPrimitive.Send
@@ -121,9 +114,6 @@ export default function AgentChat({ onClose }: { onClose: () => void }) {
                 <ArrowUp size={19} />
               </ComposerPrimitive.Send>
             </ComposerPrimitive.Root>
-            <p className="chat-footnote">
-              Changes always need your explicit approval.
-            </p>
           </ThreadPrimitive.Root>
         </AssistantRuntimeProvider>
       </aside>

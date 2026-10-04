@@ -67,7 +67,6 @@ export function SubscriptionComposition({
         <div className="composition-total">
           <strong>{money(total)}</strong>
           <span>per month</span>
-          <small>{subscriptions.length} active subscriptions</small>
         </div>
       </div>
       {entries.length ? (

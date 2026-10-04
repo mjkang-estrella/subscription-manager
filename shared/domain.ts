@@ -56,6 +56,7 @@ export function utilization(s: Subscription): {
 }
 export function recommendations(
   subscriptions: Subscription[],
+  dismissedIds: readonly string[] = [],
 ): Recommendation[] {
   return subscriptions
     .filter((s) => s.status === "active")
@@ -99,7 +100,8 @@ export function recommendations(
           },
         ];
       return [];
-    });
+    })
+    .filter((r) => !dismissedIds.includes(r.id));
 }
 export function createWorkspace(): Workspace {
   const now = today(),

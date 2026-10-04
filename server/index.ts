@@ -86,6 +86,26 @@ app.use("/api", (req, res, next) => {
 app.get("/api/workspace", async (req, res) =>
   res.json(await load(res.locals.workspace)),
 );
+app.post("/api/opportunities/:id/dismiss", async (req, res) => {
+  const { dismissed } = z.object({ dismissed: z.boolean() }).parse(req.body);
+  const id = z.string().min(1).max(200).parse(req.params.id);
+  const workspace = await mutate(res.locals.workspace, (d) => {
+    const saved = d.dismissedOpportunityIds ?? [];
+    if (
+      !recommendations(d.subscriptions).some((r) => r.id === id) &&
+      !saved.includes(id)
+    ) {
+      return null;
+    }
+    d.dismissedOpportunityIds = dismissed
+      ? [...new Set([...saved, id])]
+      : saved.filter((entry) => entry !== id);
+    return d;
+  });
+  if (!workspace)
+    return res.status(404).json({ error: "Opportunity not found." });
+  res.json(workspace);
+});
 app.get("/api/integrations", (_req, res) =>
   res.json([
     {
@@ -320,7 +340,7 @@ app.post("/api/chat", async (req, res) => {
     source: s.source,
   }));
   const text = await askAgent(
-    `Today: ${today()}. Workspace mode: ${d.mode}. Subscriptions: ${JSON.stringify(context)}. Evidence-based suggestions: ${JSON.stringify(recommendations(d.subscriptions))}. User: ${message}. Answer in plain text, under 250 words. You cannot execute or promise actions from chat. Direct the user to Review plan for exact approval. Demo data is illustrative.`,
+    `Today: ${today()}. Workspace mode: ${d.mode}. Subscriptions: ${JSON.stringify(context)}. Evidence-based suggestions: ${JSON.stringify(recommendations(d.subscriptions, d.dismissedOpportunityIds))}. Dismissed opportunity IDs: ${JSON.stringify(d.dismissedOpportunityIds ?? [])}. Respect dismissals; do not proactively suggest these changes. User: ${message}. Answer in plain text, under 250 words. You cannot execute or promise actions from chat. Direct the user to Review plan for exact approval. Demo data is illustrative.`,
   );
   res.json({ text });
 });

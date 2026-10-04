@@ -77,6 +77,7 @@ export type Action = {
   mode: "sandbox";
 };
 export type Workspace = {
+  dismissedOpportunityIds?: string[];
   subscriptions: Subscription[];
   actions: Action[];
   mode: "demo" | "personal";
