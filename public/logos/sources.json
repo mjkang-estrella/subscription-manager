@@ -1,0 +1,58 @@
+[
+  {
+    "file": "spotify.png",
+    "source": "https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Primary_Logo_RGB_Green.png",
+    "sourcePage": "https://newsroom.spotify.com/media-kit/logo-and-brand-assets/",
+    "bytes": 24505,
+    "retrieved": "2026-10-04"
+  },
+  {
+    "file": "notion.png",
+    "source": "https://www.notion.com/front-static/logo-ios.png",
+    "sourcePage": "https://www.notion.com",
+    "bytes": 8078,
+    "retrieved": "2026-10-04"
+  },
+  {
+    "file": "adobe.svg",
+    "source": "https://main--federal--adobecom.aem.page/federal/assets/svgs/creative-cloud.svg",
+    "sourcePage": "https://www.adobe.com/federal/ace1201/products/submenus/design.html",
+    "bytes": 58013,
+    "retrieved": "2026-10-04"
+  },
+  {
+    "file": "netflix.png",
+    "source": "https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2016.png",
+    "sourcePage": "https://www.netflix.com",
+    "bytes": 1755,
+    "retrieved": "2026-10-04"
+  },
+  {
+    "file": "figma.svg",
+    "source": "https://static.figma.com/app/icon/2/favicon.svg",
+    "sourcePage": "https://www.figma.com",
+    "bytes": 864,
+    "retrieved": "2026-10-04"
+  },
+  {
+    "file": "icloud.png",
+    "source": "https://www.icloud.com/system/icloud.com/2636Build34/favicons/default-favicon-light-180x180.png",
+    "sourcePage": "https://www.icloud.com",
+    "bytes": 12943,
+    "retrieved": "2026-10-04"
+  },
+  {
+    "file": "github.png",
+    "source": "https://github.githubassets.com/favicons/favicon.png",
+    "sourcePage": "https://github.com",
+    "bytes": 958,
+    "retrieved": "2026-10-04"
+  },
+  {
+    "file": "youtube.png",
+    "source": "https://www.youtube.com/s/desktop/85a3164d/img/favicon_144x144.png",
+    "sourcePage": "https://www.youtube.com",
+    "bytes": 5020,
+    "retrieved": "2026-10-04"
+  }
+]

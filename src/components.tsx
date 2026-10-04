@@ -1,6 +1,7 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { X, Check, Loader2, Circle, TriangleAlert } from "lucide-react";
 import type { Subscription, Action } from "../shared/types";
+import { serviceLogo } from "./serviceLogos";
 import { money, utilization } from "../shared/domain";
 
 let activeOverlays = 0;
@@ -29,20 +30,30 @@ export function Logo({
   sub: Subscription;
   small?: boolean;
 }) {
+  const source = serviceLogo(sub);
+  const [failedSource, setFailedSource] = useState<string>();
+  const showLogo = source && failedSource !== source;
   return (
     <span
-      className={`service-logo ${small ? "small" : ""} logo-${sub.id}`}
-      style={{
-        background:
-          sub.id === "notion" || sub.id === "github" ? "#f4f4f2" : sub.color,
-        color: sub.id === "notion" || sub.id === "github" ? "#222" : "white",
-      }}
+      className={`service-logo ${small ? "small" : ""} ${showLogo ? "brand-logo" : "fallback-logo"}`}
       aria-hidden="true"
     >
-      {sub.icon}
+      {showLogo ? (
+        <img
+          src={source}
+          alt=""
+          width={32}
+          height={32}
+          decoding="async"
+          onError={() => setFailedSource(source)}
+        />
+      ) : (
+        sub.name.trim().slice(0, 1).toUpperCase() || "?"
+      )}
     </span>
   );
 }
+
 export function UsageBadge({ sub }: { sub: Subscription }) {
   const u = utilization(sub);
   return (

@@ -1047,31 +1047,6 @@ td > small {
   font-size: 0.9375rem;
   border-radius: 7px;
 }
-.logo-spotify {
-  border-radius: 50%;
-  font-size: 1.25rem;
-  font-family: Georgia, serif;
-}
-.logo-notion {
-  font-family: Georgia, serif;
-  font-size: 1.375rem;
-}
-.logo-adobe {
-  font-family: "Manrope", sans-serif;
-}
-.logo-netflix {
-  font-stretch: condensed;
-}
-.logo-figma {
-  font-family: Georgia, serif;
-}
-.logo-icloud {
-  font-family: Georgia, serif;
-  font-style: italic;
-}
-.logo-youtube {
-  font-size: 0.875rem;
-}
 .price {
   font-weight: 550;
   font-size: 0.75rem;
@@ -4157,4 +4132,34 @@ td {
 }
 .savings-spotlight {
   align-self: start;
+}
+
+.service-logo.brand-logo {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+.service-logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.service-logo.fallback-logo {
+  background: var(--surface-subtle);
+  color: var(--text);
+  box-shadow: none;
+}
+.composition-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.composition-name > span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.composition-name .service-logo {
+  width: 24px;
+  height: 24px;
 }

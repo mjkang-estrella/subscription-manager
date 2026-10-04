@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Logo } from "./components";
 import type { Subscription } from "../shared/types";
 import { money, monthly } from "../shared/domain";
 
@@ -90,7 +91,10 @@ export function SubscriptionComposition({
                   style={{ backgroundColor: color }}
                   aria-hidden="true"
                 />
-                <span className="composition-name">{subscription.name}</span>
+                <span className="composition-name">
+                  <Logo sub={subscription} small />
+                  <span>{subscription.name}</span>
+                </span>
                 <span className="composition-share">{percent(share)}</span>
                 <strong>{money(amount)}</strong>
               </button>
