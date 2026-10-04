@@ -9,7 +9,9 @@ import type {
 } from "./types.js";
 export const today = () => new Date().toISOString().slice(0, 10);
 export const money = (n: number, currency = "USD") =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency }).format(n);
+  new Intl.NumberFormat("en-US", { style: "currency", currency }).format(
+    Number(n.toFixed(8)),
+  );
 export const monthly = (s: Pick<Subscription, "price" | "cycle">) =>
   s.price / (s.cycle === "yearly" ? 12 : 1);
 export const isCurrent = (s: Subscription, asOf = today()) =>

@@ -90,3 +90,8 @@ test("ending uncertain history cannot claim an unverified savings baseline", () 
   });
   assert.equal(o.monthlyReduction, 0);
 });
+
+test("currency formatting ignores summation noise at the half-cent boundary", () => {
+  assert.equal(money(10.004999999999999), "$10.01");
+  assert.equal(money(10.005000000000003), "$10.01");
+});
