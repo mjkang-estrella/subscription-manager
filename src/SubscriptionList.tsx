@@ -77,9 +77,7 @@ export function SubscriptionList({
   onExport: () => void;
 }) {
   const [query, setQuery] = useState(""),
-    [status, setStatus] = useState(
-      subscriptions.some((s) => s.status === "unconfirmed") ? "current" : "all",
-    ),
+    [status, setStatus] = useState("all"),
     [category, setCategory] = useState<Category | "all">("all"),
     [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({
       key: "renewal",
