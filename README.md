@@ -24,6 +24,19 @@ npm start
 
 The app creates an isolated workspace for each browser using a random HttpOnly, SameSite=Lax cookie. New workspaces start with clearly labeled sample subscriptions. Choose **Personal workspace → Start with my subscriptions** to remove samples while keeping subscriptions you added.
 
+## Vercel deployment
+
+The Vite frontend is served from the CDN; `api/index.ts` exports the Express API as a Node function. `vercel.json` configures API routing and a 300-second execution limit.
+
+```sh
+vercel link
+# Add DATABASE_URL, NEON_AI_GATEWAY_BASE_URL, NEON_AI_GATEWAY_TOKEN,
+# KERNEL_API_KEY, EXA_API_KEY, and COOKIE_SECURE=true to production.
+vercel --prod
+```
+
+Use Vercel environment variables for secrets; `.env` and local data are excluded from uploads. Neon is required on Vercel. If enabling Gmail, register `https://YOUR_DOMAIN/api/gmail/callback` in Google and set `GOOGLE_REDIRECT_URI` to that URL, plus the Google client credentials. The temporary tunnel's `PREVIEW_ACCESS_TOKEN` is not part of this deployment.
+
 ## Features
 
 - Dashboard with monthly equivalent costs, scheduled monthly charges, an interactive subscription-composition donut, and savings opportunities.
@@ -42,7 +55,7 @@ The app creates an isolated workspace for each browser using a random HttpOnly, 
 
 | Configuration                              | Purpose                                                                         |
 | ------------------------------------------ | ------------------------------------------------------------------------------- |
-| `DATABASE_URL`                             | Neon Postgres persistence; creates only the namespaced `folio_workspaces` table |
+| `DATABASE_URL`                             | Neon Postgres persistence; uses namespaced `folio_workspaces` and `folio_server_sessions` tables |
 | `NEON_AI_GATEWAY_BASE_URL`                 | Your branch's gateway URL; `/v1` is appended if absent                          |
 | `NEON_AI_GATEWAY_TOKEN`                    | Gateway credential; `OPENAI_API_KEY` is a supported fallback variable           |
 | `AI_MODEL`                                 | Gateway model ID; defaults to `gpt-5-mini`                                      |
@@ -51,7 +64,7 @@ The app creates an isolated workspace for each browser using a random HttpOnly, 
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Optional Gmail read-only OAuth                                                  |
 | `GOOGLE_REDIRECT_URI`                      | Exact callback URI registered in the Google OAuth application                   |
 
-API keys stay server-side. Folio does not fall back to a different model provider. Integration badges indicate configuration, not provider health. Gmail tokens stay in server memory and expire; reconnect after a restart or expiry.
+API keys stay server-side. Folio does not fall back to a different model provider. Integration badges indicate configuration, not provider health. Gmail tokens and account inspection sessions stay server-side in short-lived Neon records (memory during local development without a database). Reconnect after expiry.
 
 For Gmail, enable the Gmail API in your Google Cloud project, configure an OAuth consent screen, add your account as a test user, and register the redirect URI. The app requests `gmail.readonly`. Receipt import can be used without Gmail OAuth by uploading `.eml` or pasting receipt text.
 
@@ -72,8 +85,8 @@ For Gmail, enable the Gmail API in your Google Cloud project, configure an OAuth
 - The usage companion sees only browser visits in the selected time window. Mobile use, offline use, shared accounts, data dependencies, and subscription benefits require other evidence. Missing/stale evidence never automatically becomes zero usage.
 - Cancellation savings are hypothetical. Non-demo downgrade savings remain unknown until actual plan pricing is verified.
 - Receipt `.eml` import handles text content via the model; complex MIME/attachment extraction is not implemented.
-- This is a single-server hackathon application. Workspace cookies provide isolation, not an account recovery/login system. Use `PREVIEW_ACCESS_TOKEN` when sharing a preview; full public multi-user hosting requires user authentication, distributed job locking, and a durable worker queue.
-- Running browser jobs are process-local. A server restart interrupts execution; stale jobs are marked for review rather than retried automatically.
+- Workspace cookies provide browser isolation, not account recovery/login. Keep the workspace cookie to retain access to saved subscriptions. Database updates use optimistic concurrency checks across server instances.
+- On Vercel, browser jobs continue after the approval response using `waitUntil`, with a 300-second function limit. This is not a durable job queue: interrupted or expired jobs are marked for review rather than retried automatically.
 
 ## Checks
 
@@ -83,6 +96,8 @@ npm test
 npm run build
 # With the local server running:
 npm run test:integration
+# With DATABASE_URL configured (creates and removes a disposable workspace):
+npm run test:persistence
 ```
 
 Unit tests cover annual/monthly billing, calendar clamping, unknown and stale usage, browser-only evidence, candidate grouping, price/date validation, and safe fixture content. API tests create their own disposable workspace and verify persistence, isolation, editing, import deduplication, and request-origin protection.

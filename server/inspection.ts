@@ -1,12 +1,14 @@
 import Kernel from "@onkernel/sdk";
 import { z } from "zod";
-import { jsonAgent } from "./agent";
-import { load, mutate } from "./store";
-import { today } from "../shared/domain";
-const sessions = new Map<
-  string,
-  { id: string; subscriptionId: string; expires: number }
->();
+import { jsonAgent } from "./agent.js";
+import { load, mutate } from "./store.js";
+import { today } from "../shared/domain.js";
+import { getSession, setSession, deleteSession } from "./sessions.js";
+type InspectionSession = {
+  id: string;
+  subscriptionId: string;
+  expires: number;
+};
 const client = () => new Kernel({ apiKey: process.env.KERNEL_API_KEY });
 export async function startInspection(
   workspace: string,
@@ -28,7 +30,7 @@ export async function startInspection(
     throw new Error(
       "Set a valid public website domain for this subscription first.",
     );
-  const prior = sessions.get(workspace);
+  const prior = await getSession<InspectionSession>(workspace, "inspection");
   if (prior)
     await client()
       .browsers.deleteByID(prior.id)
@@ -37,18 +39,23 @@ export async function startInspection(
     start_url: `https://${domain}`,
     timeout_seconds: 600,
   });
-  sessions.set(workspace, {
-    id: b.session_id,
-    subscriptionId,
-    expires: Date.now() + 10 * 60000,
-  });
+  await setSession(
+    workspace,
+    "inspection",
+    {
+      id: b.session_id,
+      subscriptionId,
+      expires: Date.now() + 10 * 60000,
+    },
+    Date.now() + 10 * 60000,
+  );
   return { liveViewUrl: b.browser_live_view_url };
 }
 export async function captureInspection(
   workspace: string,
   subscriptionId: string,
 ) {
-  const session = sessions.get(workspace);
+  const session = await getSession<InspectionSession>(workspace, "inspection");
   if (
     !session ||
     session.subscriptionId !== subscriptionId ||
@@ -96,9 +103,9 @@ export async function saveInspection(
   await closeInspection(workspace);
 }
 export async function closeInspection(workspace: string) {
-  const s = sessions.get(workspace);
+  const s = await getSession<InspectionSession>(workspace, "inspection");
   if (s) {
-    sessions.delete(workspace);
+    await deleteSession(workspace, "inspection");
     await client()
       .browsers.deleteByID(s.id)
       .catch(() => {});

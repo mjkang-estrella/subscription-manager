@@ -6,3 +6,5 @@ dist/
 .data/
 artifacts/
 *.log
+
+.vercel/

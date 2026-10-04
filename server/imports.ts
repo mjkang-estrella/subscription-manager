@@ -1,8 +1,8 @@
 import Papa from "papaparse";
 import { z } from "zod";
-import type { Subscription } from "../shared/types";
-import { today } from "../shared/domain";
-import { jsonAgent } from "./agent";
+import type { Subscription } from "../shared/types.js";
+import { today } from "../shared/domain.js";
+import { jsonAgent } from "./agent.js";
 export const dateSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/)

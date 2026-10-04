@@ -1,0 +1,16 @@
+.git
+.env
+.env.*
+!.env.example
+.agents
+.claude
+.codex
+.grok
+.pi
+.impeccable
+.data
+artifacts
+node_modules
+dist
+docs
+tests

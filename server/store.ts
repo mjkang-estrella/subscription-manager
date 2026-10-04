@@ -1,7 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import { mkdir, readFile, writeFile, rename } from "node:fs/promises";
-import { createWorkspace } from "../shared/domain";
-import type { Workspace } from "../shared/types";
+import { createWorkspace } from "../shared/domain.js";
+import type { Workspace } from "../shared/types.js";
 const sql = process.env.DATABASE_URL ? neon(process.env.DATABASE_URL) : null;
 let ready: Promise<unknown> | undefined;
 const locks = new Map<string, Promise<unknown>>();
@@ -9,35 +9,49 @@ export const storageMode = sql ? "Neon Postgres" : "Local file";
 async function init() {
   if (sql)
     await (ready ??= sql`CREATE TABLE IF NOT EXISTS folio_workspaces (id TEXT PRIMARY KEY, data JSONB NOT NULL, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`);
+  else if (process.env.VERCEL)
+    throw new Error("Database storage is required on Vercel.");
   else await mkdir(".data", { recursive: true, mode: 0o700 });
 }
-export async function load(id: string): Promise<Workspace> {
+async function readWorkspace(id: string): Promise<Workspace> {
   await init();
   if (sql) {
-    const rows = await sql`SELECT data FROM folio_workspaces WHERE id=${id}`;
-    if (rows.length) return recover(id, rows[0].data as Workspace);
-  } else {
-    try {
-      return recover(
-        id,
-        JSON.parse(await readFile(`.data/${id}.json`, "utf8")),
-      );
-    } catch (e) {
-      if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
+    let rows = await sql`SELECT data FROM folio_workspaces WHERE id=${id}`;
+    if (!rows.length) {
+      await sql`INSERT INTO folio_workspaces (id,data) VALUES (${id},${JSON.stringify(createWorkspace())}::jsonb) ON CONFLICT(id) DO NOTHING`;
+      rows = await sql`SELECT data FROM folio_workspaces WHERE id=${id}`;
     }
+    return rows[0].data as Workspace;
   }
-  const data = createWorkspace();
-  await save(id, data);
-  return data;
+  try {
+    return JSON.parse(await readFile(`.data/${id}.json`, "utf8"));
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
+    const data = createWorkspace();
+    await saveLocal(id, data);
+    return data;
+  }
 }
-export async function save(id: string, data: Workspace) {
-  await init();
-  if (sql)
-    await sql`INSERT INTO folio_workspaces (id,data) VALUES (${id},${JSON.stringify(data)}::jsonb) ON CONFLICT(id) DO UPDATE SET data=EXCLUDED.data,updated_at=NOW()`;
-  else {
-    await writeFile(`.data/${id}.tmp`, JSON.stringify(data), { mode: 0o600 });
-    await rename(`.data/${id}.tmp`, `.data/${id}.json`);
+async function saveLocal(id: string, data: Workspace) {
+  await writeFile(`.data/${id}.tmp`, JSON.stringify(data), { mode: 0o600 });
+  await rename(`.data/${id}.tmp`, `.data/${id}.json`);
+}
+async function compareAndSave(id: string, before: string, data: Workspace) {
+  if (!sql) {
+    await saveLocal(id, data);
+    return true;
   }
+  const rows =
+    await sql`UPDATE folio_workspaces SET data=${JSON.stringify(data)}::jsonb,updated_at=NOW() WHERE id=${id} AND data=${before}::jsonb RETURNING id`;
+  return rows.length > 0;
+}
+export async function load(id: string): Promise<Workspace> {
+  for (let attempt = 0; attempt < 16; attempt++) {
+    const data = await readWorkspace(id);
+    const before = JSON.stringify(data);
+    if (!recover(data) || (await compareAndSave(id, before, data))) return data;
+  }
+  throw new Error("Workspace is busy. Please try again.");
 }
 export async function mutate<T>(
   id: string,
@@ -47,10 +61,15 @@ export async function mutate<T>(
   const task = prior
     .catch(() => {})
     .then(async () => {
-      const data = await load(id);
-      const result = await fn(data);
-      await save(id, data);
-      return result;
+      // Callbacks may be retried after a concurrent serverless request writes.
+      // Keep external effects outside this callback.
+      for (let attempt = 0; attempt < 16; attempt++) {
+        const data = await load(id);
+        const before = JSON.stringify(data);
+        const result = await fn(data);
+        if (await compareAndSave(id, before, data)) return result;
+      }
+      throw new Error("Workspace is busy. Please try again.");
     });
   locks.set(id, task);
   try {
@@ -60,7 +79,7 @@ export async function mutate<T>(
   }
 }
 
-async function recover(id: string, data: Workspace): Promise<Workspace> {
+function recover(data: Workspace): boolean {
   let changed = false;
   for (const action of data.actions) {
     if (
@@ -78,6 +97,5 @@ async function recover(id: string, data: Workspace): Promise<Workspace> {
       changed = true;
     }
   }
-  if (changed) await save(id, data);
-  return data;
+  return changed;
 }

@@ -1,8 +1,8 @@
 import Kernel from "@onkernel/sdk";
 import { z } from "zod";
-import { jsonAgent, gatewayReady } from "./agent";
-import { mutate, load } from "./store";
-import type { Action, Subscription } from "../shared/types";
+import { jsonAgent, gatewayReady } from "./agent.js";
+import { mutate, load } from "./store.js";
+import type { Action, Subscription } from "../shared/types.js";
 const escape = (s: string) =>
   s.replace(
     /[&<>"']/g,

@@ -3,7 +3,7 @@ import type {
   Recommendation,
   Workspace,
   Evidence,
-} from "./types";
+} from "./types.js";
 export const today = () => new Date().toISOString().slice(0, 10);
 export const money = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
