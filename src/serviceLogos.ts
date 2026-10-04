@@ -1,5 +1,12 @@
 import type { Subscription } from "../shared/types";
 import { knownMerchant } from "../shared/merchants";
+import companyLogos from "./companyLogos.json";
+
+const companyDomains = companyLogos
+  .flatMap((brand) =>
+    brand.domains.map((domain) => ({ file: brand.file, domain })),
+  )
+  .sort((a, b) => b.domain.length - a.domain.length);
 
 const brands = [
   { file: "spotify.png", domains: ["spotify.com"], names: ["spotify"] },
@@ -46,10 +53,15 @@ export function serviceLogo(
   ) {
     return "/logos/icloud.png";
   }
+  // Receipt product names distinguish apps sharing a billing provider's domain.
+  const product = companyLogos.find((brand) => brand.names.includes(name));
+  if (product) return `/logos/${product.file}`;
   const brand = brands.find((brand) =>
     host ? brand.domains.some(matches) : brand.names.includes(name),
   );
   if (brand) return `/logos/${brand.file}`;
+  const company = companyDomains.find((brand) => matches(brand.domain));
+  if (company) return `/logos/${company.file}`;
   // Statement descriptors such as "SPOTIFY USA" with no domain yet.
   return host ? undefined : knownMerchant(sub.name)?.logo;
 }

@@ -1,0 +1,512 @@
+[
+  {
+    "file": "medium-app.jpg",
+    "domains": ["medium.com"],
+    "names": ["medium"]
+  },
+  {
+    "file": "linkedin-app.jpg",
+    "domains": ["linkedin.com"],
+    "names": ["linkedin"]
+  },
+  {
+    "file": "chatgpt-app.jpg",
+    "domains": ["chatgpt.com", "openai.com"],
+    "names": ["chatgpt", "chatgpt business", "chatgpt — app store"]
+  },
+  {
+    "file": "tesla-app.jpg",
+    "domains": ["tesla.com"],
+    "names": ["tesla fsd", "tesla premium connectivity"]
+  },
+  {
+    "file": "paste-app.jpg",
+    "domains": [],
+    "names": ["paste - clipboard manager"]
+  },
+  {
+    "file": "mindnode-app.jpg",
+    "domains": [],
+    "names": ["mindnode – mind map & outline"]
+  },
+  {
+    "file": "nordvpn-app.jpg",
+    "domains": ["nordvpn.com"],
+    "names": ["nordvpn: vpn fast & secure"]
+  },
+  {
+    "file": "talkatone-app.jpg",
+    "domains": [],
+    "names": ["talkatone: wifi text & calls"]
+  },
+  {
+    "file": "ivory-app.jpg",
+    "domains": [],
+    "names": ["ivory for mastodon by tapbots"]
+  },
+  {
+    "file": "fet-app.jpg",
+    "domains": [],
+    "names": ["fet: kinky bdsm dating app"]
+  },
+  {
+    "file": "kinkoo-app.jpg",
+    "domains": [],
+    "names": ["kinkoo: kink, fet bdsm dating"]
+  },
+  {
+    "file": "vocabulary-app.jpg",
+    "domains": ["vocabulary.app"],
+    "names": ["vocabulary - learn words daily"]
+  },
+  {
+    "file": "timeblocks-app.jpg",
+    "domains": [],
+    "names": ["timeblocks - mobile planner"]
+  },
+  {
+    "file": "malhaeboca-app.jpg",
+    "domains": [],
+    "names": ["말해보카"]
+  },
+  {
+    "file": "hellobot-app.jpg",
+    "domains": [],
+    "names": ["hellobot"]
+  },
+  {
+    "file": "offsuit-app.jpg",
+    "domains": [],
+    "names": ["offsuit: texas holdem poker"]
+  },
+  {
+    "file": "100tasks-com.png",
+    "domains": ["100tasks.com"],
+    "names": []
+  },
+  {
+    "file": "1password-com.png",
+    "domains": ["1password.com"],
+    "names": []
+  },
+  {
+    "file": "agentmail-to.ico",
+    "domains": ["agentmail.to"],
+    "names": []
+  },
+  {
+    "file": "airgarage-com.png",
+    "domains": ["airgarage.com"],
+    "names": []
+  },
+  {
+    "file": "akiflow-com.png",
+    "domains": ["akiflow.com"],
+    "names": []
+  },
+  {
+    "file": "amazon-com.ico",
+    "domains": ["amazon.com"],
+    "names": []
+  },
+  {
+    "file": "anytype-io.png",
+    "domains": ["anytype.io"],
+    "names": []
+  },
+  {
+    "file": "apple-com.png",
+    "domains": ["apple.com"],
+    "names": []
+  },
+  {
+    "file": "bloomberg-com.png",
+    "domains": ["bloomberg.com"],
+    "names": []
+  },
+  {
+    "file": "boldvoice-com.png",
+    "domains": ["boldvoice.com"],
+    "names": []
+  },
+  {
+    "file": "btwb-com.ico",
+    "domains": ["btwb.com"],
+    "names": []
+  },
+  {
+    "file": "capacities-io.png",
+    "domains": ["capacities.io"],
+    "names": []
+  },
+  {
+    "file": "claude-ai.png",
+    "domains": ["claude.ai"],
+    "names": []
+  },
+  {
+    "file": "cluely-com.png",
+    "domains": ["cluely.com"],
+    "names": []
+  },
+  {
+    "file": "codecademy-com.png",
+    "domains": ["codecademy.com"],
+    "names": []
+  },
+  {
+    "file": "conductor-build.png",
+    "domains": ["conductor.build"],
+    "names": []
+  },
+  {
+    "file": "convex-dev.ico",
+    "domains": ["convex.dev"],
+    "names": []
+  },
+  {
+    "file": "coupang-com.ico",
+    "domains": ["coupang.com"],
+    "names": []
+  },
+  {
+    "file": "coursera-org.png",
+    "domains": ["coursera.org"],
+    "names": []
+  },
+  {
+    "file": "craft-do.png",
+    "domains": ["craft.do"],
+    "names": []
+  },
+  {
+    "file": "dalock-kr.png",
+    "domains": ["dalock.kr"],
+    "names": []
+  },
+  {
+    "file": "developer-apple-com.svg",
+    "domains": ["developer.apple.com"],
+    "names": []
+  },
+  {
+    "file": "diabrowser-com.png",
+    "domains": ["diabrowser.com"],
+    "names": []
+  },
+  {
+    "file": "emergent-sh.png",
+    "domains": ["emergent.sh"],
+    "names": []
+  },
+  {
+    "file": "epop-ai.png",
+    "domains": ["epop.ai"],
+    "names": ["말해보카"]
+  },
+  {
+    "file": "every-to.svg",
+    "domains": ["every.to"],
+    "names": []
+  },
+  {
+    "file": "fet-app-com.ico",
+    "domains": ["fet-app.com"],
+    "names": []
+  },
+  {
+    "file": "flexibits-com.png",
+    "domains": ["flexibits.com"],
+    "names": []
+  },
+  {
+    "file": "founderscard-com.svg",
+    "domains": ["founderscard.com"],
+    "names": []
+  },
+  {
+    "file": "ghost-org.ico",
+    "domains": ["ghost.org"],
+    "names": []
+  },
+  {
+    "file": "grassrootscrossfit-com.gif",
+    "domains": ["grassrootscrossfit.com"],
+    "names": []
+  },
+  {
+    "file": "headspace-com.ico",
+    "domains": ["headspace.com"],
+    "names": []
+  },
+  {
+    "file": "hey-com.png",
+    "domains": ["hey.com"],
+    "names": []
+  },
+  {
+    "file": "hudapp-com.png",
+    "domains": ["hudapp.com"],
+    "names": ["hud™ bedroom dating app"]
+  },
+  {
+    "file": "hugeicons-com.ico",
+    "domains": ["hugeicons.com"],
+    "names": []
+  },
+  {
+    "file": "kagi-com.png",
+    "domains": ["kagi.com"],
+    "names": []
+  },
+  {
+    "file": "kinkoo-app.ico",
+    "domains": ["kinkoo.app"],
+    "names": []
+  },
+  {
+    "file": "laundrygo-com.png",
+    "domains": ["laundrygo.com"],
+    "names": []
+  },
+  {
+    "file": "lazparking-com.png",
+    "domains": ["lazparking.com"],
+    "names": []
+  },
+  {
+    "file": "masterclass-com.ico",
+    "domains": ["masterclass.com"],
+    "names": []
+  },
+  {
+    "file": "mindnode-com.png",
+    "domains": ["mindnode.com"],
+    "names": []
+  },
+  {
+    "file": "music-apple-com.png",
+    "domains": ["music.apple.com"],
+    "names": ["apple music"]
+  },
+  {
+    "file": "obsidian-md.png",
+    "domains": ["obsidian.md"],
+    "names": []
+  },
+  {
+    "file": "offsuit-app.png",
+    "domains": ["offsuit.app"],
+    "names": []
+  },
+  {
+    "file": "ouraring-com.png",
+    "domains": ["ouraring.com"],
+    "names": []
+  },
+  {
+    "file": "overcast-fm.png",
+    "domains": ["overcast.fm"],
+    "names": []
+  },
+  {
+    "file": "pasteapp-io.png",
+    "domains": ["pasteapp.io"],
+    "names": []
+  },
+  {
+    "file": "pdfexpert-com.png",
+    "domains": ["pdfexpert.com"],
+    "names": []
+  },
+  {
+    "file": "petersonacademy-com.png",
+    "domains": ["petersonacademy.com"],
+    "names": []
+  },
+  {
+    "file": "pilly-kr.png",
+    "domains": ["pilly.kr"],
+    "names": []
+  },
+  {
+    "file": "productcompass-pm.png",
+    "domains": ["productcompass.pm"],
+    "names": []
+  },
+  {
+    "file": "qobuz-com.png",
+    "domains": ["qobuz.com"],
+    "names": []
+  },
+  {
+    "file": "qz-com.png",
+    "domains": ["qz.com"],
+    "names": []
+  },
+  {
+    "file": "raycast-com.png",
+    "domains": ["raycast.com"],
+    "names": []
+  },
+  {
+    "file": "readwise-io.png",
+    "domains": ["readwise.io"],
+    "names": []
+  },
+  {
+    "file": "render-com.svg",
+    "domains": ["render.com"],
+    "names": []
+  },
+  {
+    "file": "rize-io.png",
+    "domains": ["rize.io"],
+    "names": []
+  },
+  {
+    "file": "ro-co.png",
+    "domains": ["ro.co"],
+    "names": []
+  },
+  {
+    "file": "roon-app.png",
+    "domains": ["roon.app"],
+    "names": []
+  },
+  {
+    "file": "screen-studio.png",
+    "domains": ["screen.studio"],
+    "names": []
+  },
+  {
+    "file": "sectionai-com.png",
+    "domains": ["sectionai.com"],
+    "names": []
+  },
+  {
+    "file": "simplify-jobs.ico",
+    "domains": ["simplify.jobs"],
+    "names": []
+  },
+  {
+    "file": "skool-com.png",
+    "domains": ["skool.com"],
+    "names": []
+  },
+  {
+    "file": "speak-com.png",
+    "domains": ["speak.com"],
+    "names": []
+  },
+  {
+    "file": "squarespace-com.png",
+    "domains": ["squarespace.com"],
+    "names": []
+  },
+  {
+    "file": "starlink-com.ico",
+    "domains": ["starlink.com"],
+    "names": []
+  },
+  {
+    "file": "stratechery-com.png",
+    "domains": ["stratechery.com"],
+    "names": []
+  },
+  {
+    "file": "studocu-com.png",
+    "domains": ["studocu.com"],
+    "names": []
+  },
+  {
+    "file": "talkatone-com.png",
+    "domains": ["talkatone.com"],
+    "names": []
+  },
+  {
+    "file": "tapbots-com.png",
+    "domains": ["tapbots.com"],
+    "names": ["tweetbot"]
+  },
+  {
+    "file": "teuxdeux-com.png",
+    "domains": ["teuxdeux.com"],
+    "names": []
+  },
+  {
+    "file": "thebrightapp-xyz.png",
+    "domains": ["thebrightapp.xyz"],
+    "names": []
+  },
+  {
+    "file": "thecorrespondent-com.png",
+    "domains": ["thecorrespondent.com"],
+    "names": []
+  },
+  {
+    "file": "timeblocks-com.png",
+    "domains": ["timeblocks.com"],
+    "names": []
+  },
+  {
+    "file": "tinder-com.png",
+    "domains": ["tinder.com"],
+    "names": []
+  },
+  {
+    "file": "tradingview-com.png",
+    "domains": ["tradingview.com"],
+    "names": []
+  },
+  {
+    "file": "tryexponent-com.png",
+    "domains": ["tryexponent.com"],
+    "names": []
+  },
+  {
+    "file": "uber-com.ico",
+    "domains": ["uber.com"],
+    "names": []
+  },
+  {
+    "file": "usemotion-com.svg",
+    "domains": ["usemotion.com"],
+    "names": []
+  },
+  {
+    "file": "warp-dev.png",
+    "domains": ["warp.dev"],
+    "names": []
+  },
+  {
+    "file": "watcha-com.ico",
+    "domains": ["watcha.com"],
+    "names": []
+  },
+  {
+    "file": "whooing-com.ico",
+    "domains": ["whooing.com"],
+    "names": []
+  },
+  {
+    "file": "x-com.png",
+    "domains": ["x.com"],
+    "names": []
+  },
+  {
+    "file": "yazio-com.png",
+    "domains": ["yazio.com"],
+    "names": []
+  },
+  {
+    "file": "logolivery-ai.png",
+    "domains": ["logolivery.ai", "logolivery.com"],
+    "names": ["logolivery"]
+  },
+  {
+    "file": "select-ridibooks-com.png",
+    "domains": ["select.ridibooks.com", "ridiselect.com"],
+    "names": ["리디셀렉트"]
+  }
+]
