@@ -183,7 +183,7 @@ export function ActionProgress({ action }: { action: Action }) {
           className="button secondary"
           href={action.liveViewUrl}
           target="_blank"
-          rel="noreferrer"
+          rel="noreferrer noopener"
         >
           Watch browser session
         </a>
@@ -194,11 +194,14 @@ export function ActionProgress({ action }: { action: Action }) {
           <div>
             <strong>Test change verified</strong>
             <p>{action.confirmation}</p>
-            <p>
-              {action.verification?.plan} ·{" "}
-              {money(action.verification?.price || 0)} /{" "}
-              {action.verification?.cycle}
-            </p>
+            {action.verification && (
+              <p>
+                {action.verification.status} · {action.verification.plan} ·{" "}
+                {money(action.verification.price)} / {action.verification.cycle}
+                {action.verification.effectiveDate &&
+                  ` · ${action.verification.scheduled ? "scheduled for" : "effective"} ${action.verification.effectiveDate}`}
+              </p>
+            )}
             {action.kind === "migrate" && (
               <p>
                 {action.verification?.exportedItems} documents exported ·{" "}

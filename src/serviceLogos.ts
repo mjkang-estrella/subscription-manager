@@ -1,4 +1,5 @@
 import type { Subscription } from "../shared/types";
+import { knownMerchant } from "../shared/merchants";
 
 const brands = [
   { file: "spotify.png", domains: ["spotify.com"], names: ["spotify"] },
@@ -48,5 +49,7 @@ export function serviceLogo(
   const brand = brands.find((brand) =>
     host ? brand.domains.some(matches) : brand.names.includes(name),
   );
-  return brand ? `/logos/${brand.file}` : undefined;
+  if (brand) return `/logos/${brand.file}`;
+  // Statement descriptors such as "SPOTIFY USA" with no domain yet.
+  return host ? undefined : knownMerchant(sub.name)?.logo;
 }

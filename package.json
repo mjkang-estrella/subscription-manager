@@ -10,7 +10,10 @@
     "test": "tsx --test tests/*.test.ts",
     "check": "tsc --noEmit",
     "test:integration": "tsx tests/api.integration.ts",
-    "test:persistence": "tsx tests/persistence.integration.ts"
+    "test:persistence": "tsx tests/persistence.integration.ts",
+    "test:ownership": "tsx tests/ownership.integration.ts",
+    "test:ai:live": "tsx tests/ai.live.ts",
+    "test:merchant:live": "tsx tests/merchant.live.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "latest",
@@ -23,6 +26,7 @@
     "dotenv": "latest",
     "express": "latest",
     "lucide-react": "latest",
+    "mailparser": "^3.9.35",
     "papaparse": "latest",
     "react": "latest",
     "react-dom": "latest",
@@ -30,6 +34,7 @@
   },
   "devDependencies": {
     "@types/express": "latest",
+    "@types/mailparser": "^3.9.0",
     "@types/node": "latest",
     "@types/papaparse": "latest",
     "@types/react": "latest",
@@ -40,5 +45,13 @@
     "tsx": "latest",
     "typescript": "latest",
     "vite": "latest"
+  },
+  "engines": {
+    "node": "24.x"
+  },
+  "overrides": {
+    "mailparser": {
+      "he": "1.2.0"
+    }
   }
 }

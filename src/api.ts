@@ -21,10 +21,15 @@ export async function api<T = any>(
       "Could not reach Folio. Check your connection and try again.",
     );
   }
-  if (!response.headers.get("content-type")?.includes("application/json"))
+  if (!response.headers.get("content-type")?.includes("application/json")) {
+    if (response.ok && (response.status === 202 || response.status === 204))
+      return undefined as T;
     throw new Error(
-      "The server returned an unexpected response. Reload the page and try again.",
+      response.ok
+        ? "The server returned an unexpected response. Reload the page and try again."
+        : `The request failed (${response.status}). Please try again.`,
     );
+  }
   const body = await response.json();
   if (!response.ok)
     throw new Error(
@@ -33,8 +38,17 @@ export async function api<T = any>(
     );
   return body as T;
 }
+/** For gateway-backed work (research, multi-receipt extraction) that can exceed the default. */
+export const LONG_REQUEST = () => ({ signal: AbortSignal.timeout(160000) });
 export const post = <T = any>(
   url: string,
   body: unknown = {},
   options: RequestInit = {},
 ) => api<T>(url, { ...options, method: "POST", body: JSON.stringify(body) });
+export const patch = <T = any>(url: string, body: unknown) =>
+  api<T>(url, { method: "PATCH", body: JSON.stringify(body) });
+export const del = <T = any>(url: string, body?: unknown) =>
+  api<T>(url, {
+    method: "DELETE",
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+  });

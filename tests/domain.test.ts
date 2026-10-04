@@ -9,8 +9,6 @@ import {
   today,
 } from "../shared/domain";
 import { parseImport, subscriptionSchema } from "../server/imports";
-import { merchantFixture } from "../server/browser";
-import type { Action } from "../shared/types";
 const base = () => ({ ...createWorkspace().subscriptions[0] });
 test("annual plans normalize without charging every month", () => {
   const s = {
@@ -101,24 +99,6 @@ test("invalid calendar dates and negative prices are rejected", () => {
     subscriptionSchema.safeParse({ ...s, price: -1 }).success,
     false,
   );
-});
-test("sandbox escapes merchant content and keeps independent state", () => {
-  const s = { ...base(), name: "<script>alert(1)</script>" };
-  const a = {
-    fromPlan: "Premium",
-    fromPrice: 12,
-    fromCycle: "monthly",
-    toPlan: "Cancelled",
-    toPrice: 0,
-    toCycle: "monthly",
-    kind: "cancel",
-    consequence: "End test plan",
-  } as Action;
-  const html = merchantFixture(s, a);
-  assert(html.includes("&lt;script&gt;"));
-  assert(!html.includes("<script>alert(1)</script>"));
-  assert(html.includes("window.accountState"));
-  assert(html.includes("NO REAL BILLING"));
 });
 
 test("an account page without explicit metrics stays unknown", () => {

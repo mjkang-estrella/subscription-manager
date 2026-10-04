@@ -1,6 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import { mkdir, readFile, writeFile, rename } from "node:fs/promises";
 import { createWorkspace } from "../shared/domain.js";
+import { migrateWorkspace } from "../shared/lifecycle.js";
 import type { Workspace } from "../shared/types.js";
 const sql = process.env.DATABASE_URL ? neon(process.env.DATABASE_URL) : null;
 let ready: Promise<unknown> | undefined;
@@ -49,7 +50,10 @@ export async function load(id: string): Promise<Workspace> {
   for (let attempt = 0; attempt < 16; attempt++) {
     const data = await readWorkspace(id);
     const before = JSON.stringify(data);
-    if (!recover(data) || (await compareAndSave(id, before, data))) return data;
+    const changed = migrateWorkspace(data);
+    const recovered = recover(data);
+    if ((!changed && !recovered) || (await compareAndSave(id, before, data)))
+      return data;
   }
   throw new Error("Workspace is busy. Please try again.");
 }
@@ -85,7 +89,7 @@ function recover(data: Workspace): boolean {
     if (
       action.status === "running" &&
       Date.now() - Date.parse(action.approvedAt || action.createdAt) >
-        15 * 60 * 1000
+        6 * 60 * 1000
     ) {
       action.status = "failed";
       action.error =
@@ -98,4 +102,41 @@ function recover(data: Workspace): boolean {
     }
   }
   return changed;
+}
+
+export async function removeWorkspace(id: string) {
+  await init();
+  if (sql) {
+    const deleted =
+      await sql`DELETE FROM folio_workspaces WHERE id=${id} AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(data->'actions') a WHERE a->>'status'='running') RETURNING id`;
+    if (!deleted.length) {
+      const existing =
+        await sql`SELECT id FROM folio_workspaces WHERE id=${id}`;
+      if (existing.length)
+        throw new Error(
+          "Wait for the running test before deleting this workspace.",
+        );
+    }
+  } else {
+    const prior = locks.get(id) ?? Promise.resolve();
+    const task = prior
+      .catch(() => {})
+      .then(async () => {
+        const data = await readWorkspace(id);
+        if (data.actions.some((a) => a.status === "running"))
+          throw new Error(
+            "Wait for the running test before deleting this workspace.",
+          );
+        const { unlink } = await import("node:fs/promises");
+        await unlink(`.data/${id}.json`).catch((e) => {
+          if (e.code !== "ENOENT") throw e;
+        });
+      });
+    locks.set(id, task);
+    try {
+      await task;
+    } finally {
+      if (locks.get(id) === task) locks.delete(id);
+    }
+  }
 }

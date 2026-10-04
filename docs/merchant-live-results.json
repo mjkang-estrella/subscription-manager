@@ -1,0 +1,126 @@
+[
+  {
+    "variant": "standard",
+    "kind": "downgrade",
+    "status": "completed",
+    "verification": {
+      "plan": "Starter",
+      "cycle": "monthly",
+      "price": 7.2,
+      "status": "active",
+      "scheduled": true,
+      "effectiveDate": "2026-10-12"
+    },
+    "confirmation": "FOLIO-TEST-77028a38-e7b3-4d95-beea-5e12ec080921",
+    "screenshot": "merchant-standard-downgrade.png"
+  },
+  {
+    "variant": "standard",
+    "kind": "cancel",
+    "status": "completed",
+    "verification": {
+      "plan": "Cancelled",
+      "cycle": "monthly",
+      "price": 0,
+      "status": "cancel_pending",
+      "scheduled": true,
+      "effectiveDate": "2026-10-12"
+    },
+    "confirmation": "FOLIO-TEST-98593e74-7246-40d7-a3d7-9da3c4270cbd",
+    "screenshot": "merchant-standard-cancel.png"
+  },
+  {
+    "variant": "standard",
+    "kind": "yearly",
+    "status": "completed",
+    "verification": {
+      "plan": "Annual",
+      "cycle": "yearly",
+      "price": 115.2,
+      "status": "active",
+      "scheduled": true,
+      "effectiveDate": "2026-10-12"
+    },
+    "confirmation": "FOLIO-TEST-0c6c6a13-0f29-48f2-94a1-3a7b99c69e1a",
+    "screenshot": "merchant-standard-yearly.png"
+  },
+  {
+    "variant": "standard",
+    "kind": "migrate",
+    "status": "completed",
+    "verification": {
+      "plan": "Replacement Basic",
+      "cycle": "monthly",
+      "price": 6,
+      "status": "active",
+      "scheduled": false,
+      "effectiveDate": "2026-10-04",
+      "exportedItems": 3,
+      "importedItems": 3
+    },
+    "confirmation": "FOLIO-TEST-c75ef80f-9bf9-4f1b-98f6-2a60a7f7a72a",
+    "screenshot": "merchant-standard-migrate.png"
+  },
+  {
+    "variant": "alternate",
+    "kind": "cancel",
+    "status": "completed",
+    "verification": {
+      "plan": "Cancelled",
+      "cycle": "monthly",
+      "price": 0,
+      "status": "cancel_pending",
+      "scheduled": true,
+      "effectiveDate": "2026-10-12"
+    },
+    "confirmation": "FOLIO-TEST-199e698d-06ac-4ba5-982a-9cf5a9df6979",
+    "screenshot": "merchant-alternate-cancel.png"
+  },
+  {
+    "variant": "alternate",
+    "kind": "downgrade",
+    "status": "completed",
+    "verification": {
+      "plan": "Starter",
+      "cycle": "monthly",
+      "price": 7.2,
+      "status": "active",
+      "scheduled": true,
+      "effectiveDate": "2026-10-12"
+    },
+    "confirmation": "FOLIO-TEST-87aec3a4-6f43-4214-9e3c-418292f5bb07",
+    "screenshot": "merchant-alternate-downgrade.png"
+  },
+  {
+    "variant": "alternate",
+    "kind": "yearly",
+    "status": "completed",
+    "verification": {
+      "plan": "Annual",
+      "cycle": "yearly",
+      "price": 115.2,
+      "status": "active",
+      "scheduled": true,
+      "effectiveDate": "2026-10-12"
+    },
+    "confirmation": "FOLIO-TEST-0193d366-2ae4-4745-b062-fb1d47ffa123",
+    "screenshot": "merchant-alternate-yearly.png"
+  },
+  {
+    "variant": "alternate",
+    "kind": "migrate",
+    "status": "completed",
+    "verification": {
+      "plan": "Replacement Basic",
+      "cycle": "monthly",
+      "price": 6,
+      "status": "active",
+      "scheduled": false,
+      "effectiveDate": "2026-10-04",
+      "exportedItems": 3,
+      "importedItems": 3
+    },
+    "confirmation": "FOLIO-TEST-b52b3e30-d39b-4ec6-ae45-d4f9906b4ced",
+    "screenshot": "merchant-alternate-migrate.png"
+  }
+]

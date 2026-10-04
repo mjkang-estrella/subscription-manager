@@ -47,6 +47,7 @@ assert.deepEqual(
     .dismissedOpportunityIds,
   [],
 );
+await request("/api/workspace/personal", {});
 const input = {
   name: "API Test",
   domain: "example.com",
@@ -61,7 +62,7 @@ const input = {
 const added = await request("/api/subscriptions", input);
 assert.equal(added.status, 201);
 const id = added.body.id;
-assert.equal((await request("/api/workspace")).body.subscriptions.length, 9);
+assert.equal((await request("/api/workspace")).body.subscriptions.length, 1);
 const other = await fetch(base + "/api/workspace");
 assert.equal((await other.json()).subscriptions.length, 8);
 assert.equal(

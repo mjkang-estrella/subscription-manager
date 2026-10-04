@@ -44,3 +44,12 @@ export async function deleteSession(workspace: string, kind: string) {
     await sql`DELETE FROM folio_server_sessions WHERE workspace=${workspace} AND kind=${kind}`;
   else local.delete(`${workspace}:${kind}`);
 }
+
+export async function deleteWorkspaceSessions(workspace: string) {
+  await init();
+  if (sql)
+    await sql`DELETE FROM folio_server_sessions WHERE workspace=${workspace}`;
+  else
+    for (const key of local.keys())
+      if (key.startsWith(`${workspace}:`)) local.delete(key);
+}
