@@ -43,86 +43,94 @@ export function RenewalDecisions({
     [error, setError] = useState("");
   const shown = expanded ? queue : queue.slice(0, COLLAPSED);
   return (
-    <section className="panel decisions-panel" aria-labelledby="decisions-title">
+    <section
+      className="panel decisions-panel"
+      aria-labelledby="decisions-title"
+    >
       <div className="panel-heading">
         <h2 id="decisions-title">Renewal decisions</h2>
         {queue.length > 0 && <span className="count-pill">{queue.length}</span>}
       </div>
       {queue.length ? (
         <>
-        <ul className="decision-list" id="decision-list">
-          {shown.map((d) => {
-            const priced = d.verdict.recommendation?.savings ?? 0;
-            return (
-              <li key={d.sub.id}>
-                <button className="decision-main" onClick={() => onOpen(d.sub)}>
-                  <Logo sub={d.sub} small />
-                  <span className="decision-text">
-                    <strong>{d.sub.name}</strong>
-                    <small>{detail(d)}</small>
-                  </span>
-                  <span className="decision-amount">
-                    <strong>
-                      {money(d.sub.price)}
-                      <small>/{per(d.sub.cycle)}</small>
-                    </strong>
-                    {priced > 0 && (
-                      <small className="decision-saving">Save {money(priced)}/mo</small>
-                    )}
-                  </span>
-                </button>
-                <div className="decision-actions">
+          <ul className="decision-list" id="decision-list">
+            {shown.map((d) => {
+              const priced = d.verdict.recommendation?.savings ?? 0;
+              return (
+                <li key={d.sub.id}>
                   <button
-                    className="button secondary compact"
-                    disabled={keeping !== null || !d.renewal}
-                    title={d.renewal ? undefined : "No upcoming renewal"}
-                    onClick={async () => {
-                      setKeeping(d.sub.id);
-                      setError("");
-                      try {
-                        const r = await post<{ renewal: string }>(
-                          `/api/subscriptions/${d.sub.id}/keep`,
-                        );
-                        await onRefresh();
-                        onNotify(
-                          `Keeping ${d.sub.name} through the ${dateLabel(r.renewal)} renewal.`,
-                        );
-                      } catch (e) {
-                        setError(errorText(e));
-                      } finally {
-                        setKeeping(null);
-                      }
-                    }}
-                  >
-                    {keeping === d.sub.id ? (
-                      <Loader2 className="spin" size={14} />
-                    ) : (
-                      <Check size={14} />
-                    )}
-                    Keep
-                  </button>
-                  <button
-                    className="button primary compact"
+                    className="decision-main"
                     onClick={() => onOpen(d.sub)}
                   >
-                    Review
+                    <Logo sub={d.sub} small />
+                    <span className="decision-text">
+                      <strong>{d.sub.name}</strong>
+                      <small>{detail(d)}</small>
+                    </span>
+                    <span className="decision-amount">
+                      <strong>
+                        {money(d.sub.price, d.sub.currency)}
+                        <small>/{per(d.sub.cycle)}</small>
+                      </strong>
+                      {priced > 0 && (
+                        <small className="decision-saving">
+                          Save {money(priced, d.sub.currency)}/mo
+                        </small>
+                      )}
+                    </span>
                   </button>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-        {queue.length > COLLAPSED && (
-          <button
-            className="calendar-link"
-            aria-expanded={expanded}
-            aria-controls="decision-list"
-            onClick={() => setExpanded((e) => !e)}
-          >
-            {expanded ? "Show fewer" : `Show all ${queue.length}`}
-            <ChevronDown size={15} className={expanded ? "flip" : ""} />
-          </button>
-        )}
+                  <div className="decision-actions">
+                    <button
+                      className="button secondary compact"
+                      disabled={keeping !== null || !d.renewal}
+                      title={d.renewal ? undefined : "No upcoming renewal"}
+                      onClick={async () => {
+                        setKeeping(d.sub.id);
+                        setError("");
+                        try {
+                          const r = await post<{ renewal: string }>(
+                            `/api/subscriptions/${d.sub.id}/keep`,
+                          );
+                          await onRefresh();
+                          onNotify(
+                            `Keeping ${d.sub.name} through the ${dateLabel(r.renewal)} renewal.`,
+                          );
+                        } catch (e) {
+                          setError(errorText(e));
+                        } finally {
+                          setKeeping(null);
+                        }
+                      }}
+                    >
+                      {keeping === d.sub.id ? (
+                        <Loader2 className="spin" size={14} />
+                      ) : (
+                        <Check size={14} />
+                      )}
+                      Keep
+                    </button>
+                    <button
+                      className="button primary compact"
+                      onClick={() => onOpen(d.sub)}
+                    >
+                      Review
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          {queue.length > COLLAPSED && (
+            <button
+              className="calendar-link"
+              aria-expanded={expanded}
+              aria-controls="decision-list"
+              onClick={() => setExpanded((e) => !e)}
+            >
+              {expanded ? "Show fewer" : `Show all ${queue.length}`}
+              <ChevronDown size={15} className={expanded ? "flip" : ""} />
+            </button>
+          )}
         </>
       ) : (
         <p className="muted decisions-empty">
@@ -157,10 +165,14 @@ export function SinceLastVisit({
     lines.push({
       key: `p-${p.sub.id}-${p.date}`,
       sub: p.sub,
-      text: `${p.sub.name} charged ${money(p.to)} on ${dateLabel(p.date)} (was ${money(p.from)})`,
+      text: `${p.sub.name} charged ${money(p.to, p.sub.currency)} on ${dateLabel(p.date)} (was ${money(p.from, p.sub.currency)})`,
     });
   for (const a of summary.alerts.slice(0, 3))
-    lines.push({ key: `a-${a.sub.id}-${a.text}`, sub: a.sub, text: `${a.sub.name}: ${a.text}` });
+    lines.push({
+      key: `a-${a.sub.id}-${a.text}`,
+      sub: a.sub,
+      text: `${a.sub.name}: ${a.text}`,
+    });
   for (const a of summary.completedActions.slice(0, 2))
     lines.push({
       key: `x-${a.id}`,
@@ -175,7 +187,10 @@ export function SinceLastVisit({
   if (projected.length)
     lines.push({
       key: "proj",
-      text: `${projected.length} projected renewal${projected.length === 1 ? "" : "s"} (${money(projected.reduce((a, p) => a + p.sub.price, 0))}) passed. Projected, not confirmed charges.`,
+      text: `${projected.length} projected renewal${projected.length === 1 ? "" : "s"} (${money(
+        projected.reduce((a, p) => a + p.sub.price, 0),
+        projected[0]?.sub.currency,
+      )}) passed. Projected, not confirmed charges.`,
     });
   return (
     <section className="visit-summary" aria-label="Since your last visit">
@@ -185,7 +200,10 @@ export function SinceLastVisit({
           {lines.slice(0, 6).map((l) => (
             <li key={l.key}>
               {l.sub ? (
-                <button className="text-button inline" onClick={() => onOpen(l.sub!)}>
+                <button
+                  className="text-button inline"
+                  onClick={() => onOpen(l.sub!)}
+                >
                   {l.text}
                 </button>
               ) : (

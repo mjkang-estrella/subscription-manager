@@ -26,8 +26,10 @@ export const subscriptionSchema = z.object({
   name: z.string().trim().min(1).max(100),
   domain: z.string().trim().max(160).default(""),
   plan: z.string().trim().min(1).max(100),
-  price: z.number().finite().min(0).max(100000),
-  currency: z.literal("USD").default("USD"),
+  price: z.number().finite().min(0).max(100000000),
+  currency: z
+    .enum(["USD", "KRW", "EUR", "GBP", "JPY", "CAD", "AUD", "TRY"])
+    .default("USD"),
   cycle: z.enum(["monthly", "yearly"]),
   nextBilling: dateSchema,
   category: z.enum([
@@ -791,7 +793,7 @@ const chargeSchema = z.object({
   id: z.string().max(100).optional(),
   date: dateSchema,
   amount: z.number().finite().min(0).max(100000),
-  currency: z.literal("USD"),
+  currency: subscriptionSchema.shape.currency,
   description: z.string().max(300).optional(),
 });
 export const candidateSchema = subscriptionSchema.extend({
@@ -822,6 +824,13 @@ export function confirmImports(
     merged = 0,
     skipped = 0;
   for (const c of candidates) {
+    if (
+      c.currency !== "USD" ||
+      c.charges?.some((charge) => charge.currency !== "USD")
+    )
+      throw new Error(
+        "Statement and receipt import currently supports USD. Use a reviewed backup for other currencies.",
+      );
     if (
       c.requiresReview?.includes("price") &&
       !c.price &&

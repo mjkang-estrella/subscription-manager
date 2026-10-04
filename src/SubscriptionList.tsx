@@ -34,9 +34,18 @@ export function useMediaQuery(query: string) {
 }
 
 export function renewalCell(s: Subscription, asOf = today()) {
-  if (!isCurrent(s, asOf)) return { main: "Cancelled", sub: s.endDate ? `Ended ${dateLabel(s.endDate)}` : "" };
+  if (s.status === "unconfirmed")
+    return { main: "Needs confirmation", sub: "Not included in forecasts" };
+  if (!isCurrent(s, asOf))
+    return {
+      main: "Cancelled",
+      sub: s.endDate ? `Ended ${dateLabel(s.endDate)}` : "",
+    };
   if (s.status === "cancel_pending" && s.endDate)
-    return { main: `Ends ${dateLabel(s.endDate)}`, sub: "Cancellation recorded" };
+    return {
+      main: `Ends ${dateLabel(s.endDate)}`,
+      sub: "Cancellation recorded",
+    };
   const r = nextRenewal(s, asOf);
   return {
     main: r ? dateLabel(r) : "None projected",
@@ -66,6 +75,9 @@ export function SubscriptionList({
   onExport: () => void;
 }) {
   const [query, setQuery] = useState(""),
+    [status, setStatus] = useState(
+      subscriptions.some((s) => s.status === "unconfirmed") ? "current" : "all",
+    ),
     [category, setCategory] = useState<Category | "all">("all"),
     [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({
       key: "renewal",
@@ -83,6 +95,12 @@ export function SubscriptionList({
     subscriptions.filter(
       (s) =>
         (category === "all" || s.category === category) &&
+        (status === "all" ||
+          (status === "current"
+            ? isCurrent(s)
+            : status === "unconfirmed"
+              ? s.status === "unconfirmed"
+              : s.status !== "unconfirmed" && !isCurrent(s))) &&
         `${s.name} ${s.plan} ${s.category}`.toLowerCase().includes(q),
     ),
     sort.key,
@@ -95,13 +113,21 @@ export function SubscriptionList({
         : { key, dir: DEFAULT_DIR[key] },
     );
   const ariaSort = (key: SortKey) =>
-    sort.key === key ? (sort.dir === "asc" ? "ascending" : "descending") : "none";
+    sort.key === key
+      ? sort.dir === "asc"
+        ? "ascending"
+        : "descending"
+      : "none";
   const SortHead = ({ k, label }: { k: SortKey; label: string }) => (
     <th aria-sort={ariaSort(k)}>
       <button className="sort-head" onClick={() => setKey(k)}>
         {label}
         {sort.key === k &&
-          (sort.dir === "asc" ? <ArrowUp size={12} /> : <ArrowDown size={12} />)}
+          (sort.dir === "asc" ? (
+            <ArrowUp size={12} />
+          ) : (
+            <ArrowDown size={12} />
+          ))}
       </button>
     </th>
   );
@@ -120,7 +146,11 @@ export function SubscriptionList({
       </div>
       <div className="table-tools">
         {cats.length > 1 && (
-          <div className="table-tabs" role="group" aria-label="Filter by category">
+          <div
+            className="table-tabs"
+            role="group"
+            aria-label="Filter by category"
+          >
             {(["all", ...cats] as const).map((c) => (
               <button
                 key={c}
@@ -134,6 +164,17 @@ export function SubscriptionList({
           </div>
         )}
         <div className="table-controls">
+          <select
+            className="sort-box"
+            aria-label="Filter by status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+          >
+            <option value="all">All statuses</option>
+            <option value="current">Current</option>
+            <option value="unconfirmed">Needs confirmation</option>
+            <option value="ended">Ended</option>
+          </select>
           <label className="search-box">
             <Search size={16} />
             <input
@@ -150,7 +191,10 @@ export function SubscriptionList({
                 aria-label="Sort subscriptions"
                 value={`${sort.key}:${sort.dir}`}
                 onChange={(e) => {
-                  const [key, dir] = e.target.value.split(":") as [SortKey, SortDir];
+                  const [key, dir] = e.target.value.split(":") as [
+                    SortKey,
+                    SortDir,
+                  ];
                   setSort({ key, dir });
                 }}
               >
@@ -173,7 +217,7 @@ export function SubscriptionList({
                 <button
                   className={`subscription-card ${!isCurrent(s) ? "is-ended" : ""}`}
                   onClick={() => onOpen(s)}
-                  aria-label={`${s.name}, ${money(s.price)} per ${per(s.cycle)}, ${r.main}`}
+                  aria-label={`${s.name}, ${money(s.price, s.currency)} per ${s.status === "unconfirmed" ? "last known" : per(s.cycle)}, ${r.main}`}
                 >
                   <Logo sub={s} />
                   <span className="card-name">
@@ -181,8 +225,15 @@ export function SubscriptionList({
                     <small>{s.plan}</small>
                   </span>
                   <span className="card-cost">
-                    <strong>{money(s.price)}</strong>
-                    <small>/{per(s.cycle)}</small>
+                    <strong>
+                      {s.priceKnown === false
+                        ? "Unknown"
+                        : money(s.price, s.currency)}
+                    </strong>
+                    <small>
+                      /
+                      {s.status === "unconfirmed" ? "last known" : per(s.cycle)}
+                    </small>
                   </span>
                   <span className="card-meta">
                     <span>{r.main}</span>
@@ -233,8 +284,17 @@ export function SubscriptionList({
                       </div>
                     </td>
                     <td>
-                      <strong className="price">{money(s.price)}</strong>
-                      <small>/{per(s.cycle)}</small>
+                      <strong className="price">
+                        {s.priceKnown === false
+                          ? "Unknown"
+                          : money(s.price, s.currency)}
+                      </strong>
+                      <small>
+                        /
+                        {s.status === "unconfirmed"
+                          ? "last known"
+                          : per(s.cycle)}
+                      </small>
                     </td>
                     <td>
                       <span>{r.main}</span>
@@ -256,7 +316,9 @@ export function SubscriptionList({
       {!filtered.length && (
         <div className="empty-state">
           <Layers3 size={27} />
-          <h3>{q ? "No matching subscriptions" : "A little breathing room."}</h3>
+          <h3>
+            {q ? "No matching subscriptions" : "A little breathing room."}
+          </h3>
           <p>
             {q
               ? "Try a different name or category."
@@ -271,7 +333,7 @@ export function SubscriptionList({
       )}
       <div className="table-footer">
         <span>
-          {filtered.length} shown · USD
+          {filtered.length} shown · {subscriptions[0]?.currency ?? "USD"}
         </span>
         <button className="text-button" onClick={onAddData}>
           <Upload size={14} />

@@ -63,7 +63,11 @@ export function ChangePanel({
         {outcomes.length > 0 && (
           <section>
             <h3 className="detail-subheading">Demo ledger</h3>
-            <OutcomeHistory outcomes={outcomes} onCorrect={() => undefined} />
+            <OutcomeHistory
+              currency={sub.currency}
+              outcomes={outcomes}
+              onCorrect={() => undefined}
+            />
           </section>
         )}
       </>
@@ -123,6 +127,7 @@ export function ChangePanel({
         )}
         {outcomes.length > 0 && (
           <OutcomeHistory
+            currency={sub.currency}
             outcomes={outcomes}
             onCorrect={(o) => {
               setRecording(false);
@@ -131,16 +136,20 @@ export function ChangePanel({
           />
         )}
       </section>
-      <ControlledTests sub={sub} workspace={workspace} onAction={onAction} />
+      {sub.currency === "USD" && (
+        <ControlledTests sub={sub} workspace={workspace} onAction={onAction} />
+      )}
     </>
   );
 }
 
 function OutcomeHistory({
+  currency,
   outcomes,
   onCorrect,
 }: {
   outcomes: RecordedOutcome[];
+  currency: string;
   onCorrect: (o: RecordedOutcome) => void;
 }) {
   return (
@@ -153,14 +162,15 @@ function OutcomeHistory({
               {o.source === "demo" && <em className="tag gray">Demo ledger</em>}
             </strong>
             <small>
-              {o.before.plan} {money(o.before.price)}/{per(o.before.cycle)}
+              {o.before.plan} {money(o.before.price, currency)}/
+              {per(o.before.cycle)}
               {" → "}
               {o.kind === "cancel"
                 ? `ends ${dateLabel(o.effectiveDate, true)}`
-                : `${o.after.plan} ${money(o.after.price)}/${per(o.after.cycle)} from ${dateLabel(o.effectiveDate, true)}`}
+                : `${o.after.plan} ${money(o.after.price, currency)}/${per(o.after.cycle)} from ${dateLabel(o.effectiveDate, true)}`}
             </small>
             <small>
-              {money(o.monthlyReduction)} / month{" "}
+              {money(o.monthlyReduction, currency)} / month{" "}
               {o.source === "demo"
                 ? "demo reduction"
                 : o.effectiveDate > today()
@@ -223,7 +233,9 @@ function OutcomeForm({
     kind === "cancel" ? 0 : monthly({ price: Number(price) || 0, cycle });
   const reduction =
     Math.round(
-      ((baseline.status === "cancelled" || baseline.status === "cancel_pending"
+      ((baseline.status === "cancelled" ||
+      baseline.status === "cancel_pending" ||
+      baseline.status === "unconfirmed"
         ? 0
         : monthly(baseline)) -
         after) *
@@ -362,7 +374,7 @@ function OutcomeForm({
             />
           </label>
           <label>
-            New price (USD) *
+            New price ({sub.currency}) *
             <input
               required
               type="number"
@@ -396,7 +408,7 @@ function OutcomeForm({
         {kind === "cancel"
           ? `Stays in your costs until ${dateLabel(effectiveDate, true)}; no renewal on or after that date.`
           : `Current terms apply until ${dateLabel(effectiveDate, true)}.`}{" "}
-        Recorded reduction: {money(reduction)} / month
+        Recorded reduction: {money(reduction, sub.currency)} / month
         {effectiveDate > today() ? " (projected until then)" : ""}.
       </p>
       <label className="checkbox span-two">
@@ -447,7 +459,7 @@ function ControlledTests({
   workspace: Workspace;
   onAction: (a: Action) => void;
 }) {
-  const options = actionOptions(sub);
+  const options = sub.currency === "USD" ? actionOptions(sub) : [];
   const [open, setOpen] = useState<ActionKind | null>(null);
   const running = workspace.actions.some(
     (a) => a.subscriptionId === sub.id && a.status === "running",
@@ -557,7 +569,7 @@ function PrepareForm({
           <select value={offerId} onChange={(e) => setOfferId(e.target.value)}>
             {option.offers.map((o) => (
               <option key={o.id} value={o.id}>
-                {o.plan} · {money(o.price)}/{per(o.cycle)}
+                {o.plan} · {money(o.price, sub.currency)}/{per(o.cycle)}
                 {o.provenance === "demo" ? " (illustrative)" : ""}
               </option>
             ))}
@@ -566,8 +578,8 @@ function PrepareForm({
       )}
       {offer && (
         <p className="small-note">
-          {money(monthly(sub) - monthly(offer))} / month less. You’d lose:{" "}
-          {offer.capabilityLoss}
+          {money(monthly(sub) - monthly(offer), sub.currency)} / month less.
+          You’d lose: {offer.capabilityLoss}
         </p>
       )}
       <label>

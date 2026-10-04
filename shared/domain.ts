@@ -8,18 +8,18 @@ import type {
   PlanOffer,
 } from "./types.js";
 export const today = () => new Date().toISOString().slice(0, 10);
-export const money = (n: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
-    n,
-  );
+export const money = (n: number, currency = "USD") =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency }).format(n);
 export const monthly = (s: Pick<Subscription, "price" | "cycle">) =>
   s.price / (s.cycle === "yearly" ? 12 : 1);
 export const isCurrent = (s: Subscription, asOf = today()) =>
-  s.status !== "cancelled" && (!s.endDate || s.endDate >= asOf);
+  s.status !== "cancelled" &&
+  s.status !== "unconfirmed" &&
+  (!s.endDate || s.endDate >= asOf);
 const dayInMonth = (year: number, month: number, day: number) =>
   `${year}-${String(month).padStart(2, "0")}-${String(Math.min(day, new Date(Date.UTC(year, month, 0)).getUTCDate())).padStart(2, "0")}`;
 export function billingInMonth(s: Subscription, month: string): string | null {
-  if (s.status === "cancelled") return null;
+  if (s.status === "cancelled" || s.status === "unconfirmed") return null;
   const [y, m] = month.split("-").map(Number),
     [sy, sm, sd] = s.nextBilling.split("-").map(Number);
   if (y < sy || (y === sy && m < sm) || (s.cycle === "yearly" && m !== sm))
@@ -138,6 +138,13 @@ export function verdict(s: Subscription): Verdict {
     detail: "Add meaningful usage or a renewal check-in.",
     evidence,
   };
+  if (s.status === "unconfirmed")
+    return {
+      ...unknown,
+      label: "Confirm subscription",
+      detail:
+        "Historical billing found. Confirm current status and terms before forecasting.",
+    };
   if (!isCurrent(s))
     return {
       kind: "keep",

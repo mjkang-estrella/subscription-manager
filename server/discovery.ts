@@ -85,6 +85,10 @@ router.post("/api/subscriptions/:id/research", async (req, res) => {
     return;
   }
   // All external calls and validation finish before entering retryable mutations.
+  if (sub.currency !== "USD")
+    throw new Error(
+      "Pricing research currently supports USD. Enter merchant terms in the subscription’s own currency.",
+    );
   const research = await researchSubscription(sub);
   await mutate(res.locals.workspace, (data) => {
     const current = data.subscriptions.find((s) => s.id === sub.id);

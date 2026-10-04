@@ -127,7 +127,9 @@ export function recordOutcome(
       .filter((o) => o.subscriptionId === s.id && o.source === source)
       .at(-1)?.before ?? before;
   const previousExpected =
-    baseline.status === "cancelled" || baseline.status === "cancel_pending"
+    baseline.status === "cancelled" ||
+    baseline.status === "cancel_pending" ||
+    baseline.status === "unconfirmed"
       ? 0
       : monthly(baseline);
   const after: Terms =
@@ -154,6 +156,7 @@ export function recordOutcome(
       !after.nextBilling)
   )
     throw new Error("Enter the complete new plan, price and billing date.");
+  if (input.kind === "plan") s.priceKnown = true;
   const targetMonthly = input.kind === "cancel" ? 0 : monthly(after);
   if (input.kind === "cancel") {
     s.status = after.status;

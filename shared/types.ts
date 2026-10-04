@@ -15,6 +15,7 @@ export type Evidence = {
     | "Receipt"
     | "Check-in";
   summary: string;
+  sourceUrl?: string;
   observedAt: string;
   confidence: "High" | "Medium" | "Low";
   metric?: UsageMetric;
@@ -32,14 +33,16 @@ export type Subscription = {
   domain: string;
   plan: string;
   price: number;
-  currency: "USD";
+  currency: "USD" | "KRW" | "EUR" | "GBP" | "JPY" | "CAD" | "AUD" | "TRY";
   cycle: "monthly" | "yearly";
   nextBilling: string;
   category: Category;
   color: string;
   icon: string;
-  status: "active" | "cancel_pending" | "cancelled";
+  status: "active" | "cancel_pending" | "cancelled" | "unconfirmed";
   endDate?: string;
+  priceKnown?: boolean;
+  billingNote?: string;
   hasDataToMove?: boolean;
   charges?: Charge[];
   research?: Research;
@@ -143,9 +146,10 @@ export type Charge = {
   id: string;
   date: string;
   amount: number;
-  currency: "USD";
+  currency: "USD" | "KRW" | "EUR" | "GBP" | "JPY" | "CAD" | "AUD" | "TRY";
   source: "CSV" | "Email" | "Manual";
   description?: string;
+  sourceUrl?: string;
 };
 export type PlanOffer = {
   id: string;

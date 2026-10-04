@@ -22,7 +22,7 @@ export function offerProblem(
   if (o.kind === "yearly" && o.cycle !== "yearly")
     return "An annual offer must be billed yearly.";
   if (monthly(o) >= monthly(sub))
-    return `Not cheaper than ${money(monthly(sub))} a month, so it won’t be suggested.`;
+    return `Not cheaper than ${money(monthly(sub), sub.currency)} a month, so it won’t be suggested.`;
   return undefined;
 }
 
@@ -232,7 +232,7 @@ function OfferRow({
           <small>{KIND_LABEL[o.kind]}</small>
         </div>
         <div className="offer-price">
-          <strong>{money(o.price)}</strong>
+          <strong>{money(o.price, sub.currency)}</strong>
           <small>/ {per(o.cycle)}</small>
         </div>
       </div>
@@ -241,7 +241,7 @@ function OfferRow({
         {status.label}
       </span>
       {o.confirmedAt && offerIsFresh(o) && delta > 0 && (
-        <p className="offer-delta">{money(delta)} / month less</p>
+        <p className="offer-delta">{money(delta, sub.currency)} / month less</p>
       )}
       {o.quote && (
         <blockquote className="source-excerpt">“{o.quote}”</blockquote>
@@ -374,7 +374,7 @@ function OfferForm({
         />
       </label>
       <label>
-        Price (USD) *
+        Price ({sub.currency}) *
         <input
           required
           type="number"
@@ -492,7 +492,7 @@ function DataToMove({
                 domain: sub.domain,
                 plan: sub.plan,
                 price: sub.price,
-                currency: "USD",
+                currency: sub.currency,
                 cycle: sub.cycle,
                 nextBilling: sub.nextBilling,
                 category: sub.category,

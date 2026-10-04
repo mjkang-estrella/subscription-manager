@@ -66,7 +66,7 @@ export function SubscriptionComposition({
             ))}
         </svg>
         <div className="composition-total">
-          <strong>{money(total)}</strong>
+          <strong>{money(total, subscriptions[0]?.currency)}</strong>
           <span>per month</span>
         </div>
       </div>
@@ -84,7 +84,7 @@ export function SubscriptionComposition({
                 onMouseLeave={() => setHovered(null)}
                 onFocus={() => setFocused(subscription.id)}
                 onBlur={() => setFocused(null)}
-                aria-label={`${subscription.name}: ${money(amount)} per month, ${percent(share)} of total. View subscription.`}
+                aria-label={`${subscription.name}: ${money(amount, subscription.currency)} per month, ${percent(share)} of total. View subscription.`}
               >
                 <span
                   className="composition-swatch"
@@ -96,7 +96,7 @@ export function SubscriptionComposition({
                   <span>{subscription.name}</span>
                 </span>
                 <span className="composition-share">{percent(share)}</span>
-                <strong>{money(amount)}</strong>
+                <strong>{money(amount, subscription.currency)}</strong>
               </button>
             </li>
           ))}

@@ -103,7 +103,7 @@ router.post("/api/subscriptions/:id/outcomes", async (req, res) => {
       kind: z.enum(["cancel", "plan"]),
       effectiveDate: dateSchema,
       plan: z.string().trim().min(1).max(100).optional(),
-      price: z.number().finite().min(0).max(100000).optional(),
+      price: z.number().finite().min(0).max(100000000).optional(),
       cycle: z.enum(["monthly", "yearly"]).optional(),
       nextBilling: dateSchema.optional(),
       note: z.string().max(3000).optional(),

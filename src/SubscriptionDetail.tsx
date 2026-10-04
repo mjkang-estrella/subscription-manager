@@ -79,14 +79,20 @@ export function SubscriptionDetail({
             <h2>{sub.name}</h2>
             <p>
               {sub.plan}{" "}
-              <span>· {sub.source === "Demo" ? "Demo subscription" : sub.source}</span>
+              <span>
+                · {sub.source === "Demo" ? "Demo subscription" : sub.source}
+              </span>
             </p>
           </div>
           <button className="button secondary compact" onClick={onEdit}>
             Edit
           </button>
         </div>
-        <div className="detail-tabs" role="tablist" aria-label="Subscription sections">
+        <div
+          className="detail-tabs"
+          role="tablist"
+          aria-label="Subscription sections"
+        >
           {TABS.map((t) => (
             <button
               role="tab"
@@ -113,10 +119,19 @@ export function SubscriptionDetail({
             />
           )}
           {tab === "usage" && (
-            <UsagePanel sub={sub} demo={demo} onRefresh={onRefresh} onNotify={onNotify} />
+            <UsagePanel
+              sub={sub}
+              demo={demo}
+              onRefresh={onRefresh}
+              onNotify={onNotify}
+            />
           )}
           {tab === "alternatives" && (
-            <AlternativesPanel sub={sub} onRefresh={onRefresh} onNotify={onNotify} />
+            <AlternativesPanel
+              sub={sub}
+              onRefresh={onRefresh}
+              onNotify={onNotify}
+            />
           )}
           {tab === "change" && (
             <ChangePanel
@@ -162,6 +177,7 @@ function Overview({
   const dismissed = Boolean(
     rec && workspace.dismissedOpportunityIds?.includes(rec.id),
   );
+  const [allCharges, setAllCharges] = useState(false);
   const [removeConfirm, setRemoveConfirm] = useState(false),
     [working, setWorking] = useState(false),
     [error, setError] = useState("");
@@ -170,9 +186,24 @@ function Overview({
   );
   return (
     <>
+      {sub.status === "unconfirmed" && (
+        <div className="notice">
+          Current billing terms need confirmation; excluded from spending and
+          renewals. Edit the subscription to confirm current terms.
+        </div>
+      )}
+      {sub.billingNote && <p className="small-note">{sub.billingNote}</p>}
       <div className="detail-price">
-        <strong>{money(sub.price)}</strong>
-        <span>per {per(sub.cycle)}</span>
+        <strong>
+          {sub.priceKnown === false
+            ? "Unknown price"
+            : money(sub.price, sub.currency)}
+        </strong>
+        <span>
+          {sub.status === "unconfirmed"
+            ? "last known amount"
+            : `per ${per(sub.cycle)}`}
+        </span>
         <UsageBadge sub={sub} />
       </div>
       <div className="detail-facts">
@@ -189,8 +220,14 @@ function Overview({
           </strong>
         </div>
         <div>
-          <span>Monthly equivalent</span>
-          <strong>{money(monthly(sub))}</strong>
+          <span>
+            {sub.status === "unconfirmed" ? "Forecast" : "Monthly equivalent"}
+          </span>
+          <strong>
+            {sub.status === "unconfirmed"
+              ? "Excluded until confirmed"
+              : money(monthly(sub), sub.currency)}
+          </strong>
         </div>
         <div>
           <span>Category</span>
@@ -204,7 +241,8 @@ function Overview({
       {sub.scheduledChange && (
         <p className="notice" role="status">
           Changes to {sub.scheduledChange.plan} at{" "}
-          {money(sub.scheduledChange.price)}/{per(sub.scheduledChange.cycle)} on{" "}
+          {money(sub.scheduledChange.price, sub.currency)}/
+          {per(sub.scheduledChange.cycle)} on{" "}
           {dateLabel(sub.scheduledChange.effectiveDate, true)}.
         </p>
       )}
@@ -237,25 +275,31 @@ function Overview({
         ) : null}
         {v.costPerUse !== undefined && (
           <p className="verdict-source">
-            About {money(v.costPerUse)} per {v.unit ?? "use"}
+            About {money(v.costPerUse, sub.currency)} per {v.unit ?? "use"}
           </p>
         )}
         {rec && !dismissed && (
           <>
             <strong className="verdict-saving">
               {rec.savings > 0
-                ? `${money(rec.savings)} / month ${rec.illustrative ? "demo estimate" : "potential"}`
+                ? `${money(rec.savings, sub.currency)} / month ${rec.illustrative ? "demo estimate" : "potential"}`
                 : rec.kind === "cancel"
                   ? ""
                   : "Price unconfirmed"}
             </strong>
             <small>{rec.caveat}</small>
             <div className="inline-actions">
-              <button className="button primary compact" onClick={() => onTab("change")}>
+              <button
+                className="button primary compact"
+                onClick={() => onTab("change")}
+              >
                 Review change
               </button>
               {rec.savings === 0 && rec.kind !== "cancel" && (
-                <button className="button secondary compact" onClick={() => onTab("alternatives")}>
+                <button
+                  className="button secondary compact"
+                  onClick={() => onTab("alternatives")}
+                >
                   Confirm a price
                 </button>
               )}
@@ -282,7 +326,10 @@ function Overview({
           </div>
         )}
         {v.kind === "needs_evidence" && (
-          <button className="button secondary compact" onClick={() => onTab("usage")}>
+          <button
+            className="button secondary compact"
+            onClick={() => onTab("usage")}
+          >
             Add evidence or check in
           </button>
         )}
@@ -292,23 +339,56 @@ function Overview({
         <section className="charge-history">
           <h3 className="detail-subheading">Charge history</h3>
           <ul>
-            {charges.slice(0, 12).map((c) => (
+            {charges.slice(0, allCharges ? undefined : 12).map((c) => (
               <li key={c.id} className={c.amount < 0 ? "refund" : ""}>
                 <span>{dateLabel(c.date, true)}</span>
-                <span className="charge-desc">{c.source}</span>
+                <span className="charge-desc">
+                  {c.sourceUrl ? (
+                    <a href={c.sourceUrl} target="_blank" rel="noreferrer">
+                      View receipt
+                    </a>
+                  ) : (
+                    c.source
+                  )}
+                </span>
                 <strong>
                   {c.amount < 0 ? "Refund " : ""}
-                  {money(Math.abs(c.amount))}
+                  {money(Math.abs(c.amount), c.currency)}
                 </strong>
               </li>
             ))}
           </ul>
+          {charges.length > 12 && (
+            <button
+              className="text-button"
+              onClick={() => setAllCharges(!allCharges)}
+            >
+              {allCharges
+                ? "Show recent charges"
+                : `Show all ${charges.length} charges`}
+            </button>
+          )}
           <small className="muted">
             Imported or recorded charges. Projected renewals are not added here.
           </small>
         </section>
       )}
 
+      {sub.evidence.filter((e) => e.sourceUrl).length > 0 && (
+        <section className="charge-history">
+          <h3 className="detail-subheading">Billing evidence</h3>
+          {sub.evidence
+            .filter((e) => e.sourceUrl)
+            .map((e) => (
+              <p key={e.id} className="small-note">
+                {e.summary}{" "}
+                <a href={e.sourceUrl} target="_blank" rel="noreferrer">
+                  View source
+                </a>
+              </p>
+            ))}
+        </section>
+      )}
       {sub.notes && <p className="small-note">{sub.notes}</p>}
       <div className="remove-subscription">
         {removeConfirm ? (
@@ -337,12 +417,18 @@ function Overview({
             >
               Remove
             </button>
-            <button className="text-button" onClick={() => setRemoveConfirm(false)}>
+            <button
+              className="text-button"
+              onClick={() => setRemoveConfirm(false)}
+            >
               Keep
             </button>
           </div>
         ) : (
-          <button className="text-button" onClick={() => setRemoveConfirm(true)}>
+          <button
+            className="text-button"
+            onClick={() => setRemoveConfirm(true)}
+          >
             Remove from Folio
           </button>
         )}

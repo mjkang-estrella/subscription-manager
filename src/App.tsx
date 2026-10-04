@@ -39,7 +39,7 @@ import type {
   Integration,
 } from "../shared/types";
 import {
-  money,
+  money as formatMoney,
   monthly,
   recommendations,
   today,
@@ -107,7 +107,8 @@ const recordVisitOnce = () =>
   (visitRequest ??= post<VisitResponse>("/api/workspace/visit"));
 
 export default function App() {
-  const [data, setData] = useState<Workspace | null>(null),
+  const [fullData, setData] = useState<Workspace | null>(null),
+    [currency, setCurrency] = useState("USD"),
     [loadError, setLoadError] = useState(""),
     [page, setPage] = useState<Page>("overview"),
     [sidebar, setSidebar] = useState(false),
@@ -123,6 +124,32 @@ export default function App() {
     [previousVisitAt, setPreviousVisitAt] = useState<string>(),
     [visitDismissed, setVisitDismissed] = useState(false),
     [dismissing, setDismissing] = useState<string | null>(null);
+  const data = useMemo(() => {
+    if (!fullData) return null;
+    const subscriptions = fullData.subscriptions.filter(
+      (s) => s.currency === currency,
+    );
+    const ids = new Set(subscriptions.map((s) => s.id));
+    return {
+      ...fullData,
+      subscriptions,
+      outcomes: fullData.outcomes?.filter((o) => ids.has(o.subscriptionId)),
+    };
+  }, [fullData, currency]);
+  const currencies = [
+    ...new Set(fullData?.subscriptions.map((s) => s.currency) ?? ["USD"]),
+  ].sort();
+  useEffect(() => {
+    const available = [
+      ...new Set(fullData?.subscriptions.map((s) => s.currency) ?? []),
+    ];
+    if (
+      available.length &&
+      !available.includes(currency as Subscription["currency"])
+    )
+      setCurrency(available[0]);
+  }, [fullData, currency]);
+  const money = (n: number) => formatMoney(n, currency);
   const notify = useCallback((s: string) => setToast(s), []);
 
   const refresh = useCallback(async () => {
@@ -169,11 +196,12 @@ export default function App() {
         try {
           const a = await api<Action>(`/api/actions/${id}`);
           if (openRef.current?.id === id) setOpenAction(a);
-          setData((d) =>
-            d && {
-              ...d,
-              actions: d.actions.map((x) => (x.id === a.id ? a : x)),
-            },
+          setData(
+            (d) =>
+              d && {
+                ...d,
+                actions: d.actions.map((x) => (x.id === a.id ? a : x)),
+              },
           );
           if (a.status !== "running") changed = true;
         } catch {
@@ -251,12 +279,14 @@ export default function App() {
   const comingUp = data ? upcoming(data, 30, asOf).slice(0, 5) : [];
   const visit = data ? sinceLastVisit(data, previousVisitAt, asOf) : null;
   const selected = selectedId
-    ? data?.subscriptions.find((s) => s.id === selectedId) ?? null
+    ? (fullData?.subscriptions.find((s) => s.id === selectedId) ?? null)
     : null;
   const awaiting = data?.actions.some((a) => a.status === "awaiting_approval");
   const running = data?.actions.some((a) => a.status === "running");
 
   const open = (s: Pick<Subscription, "id">, tab: DetailTab = "overview") => {
+    const target = fullData?.subscriptions.find((x) => x.id === s.id);
+    if (target) setCurrency(target.currency);
     setDetailTab(tab);
     setSelectedId(s.id);
   };
@@ -287,7 +317,11 @@ export default function App() {
           { dismissed },
         ),
       );
-      notify(dismissed ? "Suggestion dismissed. Restore it from the subscription." : "Suggestion restored.");
+      notify(
+        dismissed
+          ? "Suggestion dismissed. Restore it from the subscription."
+          : "Suggestion restored.",
+      );
     } catch (e) {
       notify(errorText(e));
     } finally {
@@ -445,6 +479,19 @@ export default function App() {
               <h1>{pageName}</h1>
             </div>
             <div className="heading-actions">
+              {currencies.length > 1 && (
+                <select
+                  aria-label="Display currency"
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                >
+                  {currencies.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              )}
               <button className="button primary" onClick={() => startAdd()}>
                 <Plus size={17} />
                 Add data
@@ -466,29 +513,45 @@ export default function App() {
             data &&
             savings && (
               <div className={`page page-${page}`}>
-                {page === "overview" && visit && visitHasNews(visit) && !visitDismissed && (
-                  <SinceLastVisit
-                    summary={visit}
-                    onOpen={(s) => open(s)}
-                    onDismiss={() => setVisitDismissed(true)}
-                  />
-                )}
+                {page === "overview" &&
+                  visit &&
+                  visitHasNews(visit) &&
+                  !visitDismissed && (
+                    <SinceLastVisit
+                      summary={visit}
+                      onOpen={(s) => open(s)}
+                      onDismiss={() => setVisitDismissed(true)}
+                    />
+                  )}
                 {(page === "overview" || page === "subscriptions") && (
                   <div className="metrics">
                     <Metric
-                      label="Average monthly cost"
+                      label="Confirmed monthly cost"
                       value={money(monthlyTotal)}
                       icon={<Wallet size={19} />}
-                      detail={<>{money(monthlyTotal * 12)} a year</>}
+                      detail={
+                        <>
+                          {data.subscriptions.some(
+                            (s) => s.status === "unconfirmed",
+                          )
+                            ? `${data.subscriptions.filter((s) => s.status === "unconfirmed").length} unconfirmed excluded`
+                            : `${money(monthlyTotal * 12)} a year`}
+                        </>
+                      }
                     />
                     <Metric
                       label="Scheduled this month"
-                      value={money(remainingThisMonth.reduce((a, e) => a + e.sub.price, 0))}
+                      value={money(
+                        remainingThisMonth.reduce((a, e) => a + e.sub.price, 0),
+                      )}
                       icon={<CalendarDays size={19} />}
                       detail={
                         <>
                           {remainingThisMonth.length} still to come in{" "}
-                          {monthName(new Date(`${thisMonth}-01T12:00:00Z`), true)}
+                          {monthName(
+                            new Date(`${thisMonth}-01T12:00:00Z`),
+                            true,
+                          )}
                         </>
                       }
                     />
@@ -521,7 +584,11 @@ export default function App() {
                   </div>
                 )}
                 {(page === "overview" || page === "savings") && (
-                  <RecordedStrip savings={savings} demo={demo} />
+                  <RecordedStrip
+                    currency={currency}
+                    savings={savings}
+                    demo={demo}
+                  />
                 )}
                 {page === "overview" && (
                   <div className="overview-grid">
@@ -564,19 +631,25 @@ export default function App() {
                           </div>
                           <div className="upcoming-list">
                             {comingUp.map(({ sub: s, date }) => (
-                              <button key={`${s.id}-${date}`} onClick={() => open(s)}>
+                              <button
+                                key={`${s.id}-${date}`}
+                                onClick={() => open(s)}
+                              >
                                 <Logo sub={s} small />
                                 <div>
                                   <strong>{s.name}</strong>
                                   <small>
-                                    {dateLabel(date)} · {relativeDays(asOf, date)}
+                                    {dateLabel(date)} ·{" "}
+                                    {relativeDays(asOf, date)}
                                   </small>
                                 </div>
                                 <strong>{money(s.price)}</strong>
                               </button>
                             ))}
                             {!comingUp.length && (
-                              <p className="muted">No renewals in the next 30 days.</p>
+                              <p className="muted">
+                                No renewals in the next 30 days.
+                              </p>
                             )}
                           </div>
                           <button
@@ -625,14 +698,22 @@ export default function App() {
                       </div>
                     </div>
                     <div className="calendar-week" aria-hidden="true">
-                      {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((d) => (
-                        <span key={d}>{d}</span>
-                      ))}
+                      {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map(
+                        (d) => (
+                          <span key={d}>{d}</span>
+                        ),
+                      )}
                     </div>
                     <div className="calendar-grid">
-                      {Array.from({ length: calendarMonth.getUTCDay() }, (_, i) => (
-                        <div className="calendar-day outside" key={`empty-${i}`} />
-                      ))}
+                      {Array.from(
+                        { length: calendarMonth.getUTCDay() },
+                        (_, i) => (
+                          <div
+                            className="calendar-day outside"
+                            key={`empty-${i}`}
+                          />
+                        ),
+                      )}
                       {Array.from(
                         {
                           length: new Date(
@@ -645,7 +726,9 @@ export default function App() {
                         },
                         (_, i) => {
                           const day = `${month}-${String(i + 1).padStart(2, "0")}`;
-                          const entries = calendarEntries.filter((x) => x.date === day);
+                          const entries = calendarEntries.filter(
+                            (x) => x.date === day,
+                          );
                           return (
                             <div
                               className={`calendar-day ${day === asOf ? "today" : ""} ${entries.length ? "has-payments" : ""}`}
@@ -658,7 +741,9 @@ export default function App() {
                                   onClick={() => open(s)}
                                   aria-label={`${s.name}, ${money(s.price)} on ${dateLabel(day)}`}
                                   style={
-                                    { "--payment-color": s.color } as React.CSSProperties
+                                    {
+                                      "--payment-color": s.color,
+                                    } as React.CSSProperties
                                   }
                                 >
                                   <span>{s.name}</span>
@@ -708,7 +793,7 @@ export default function App() {
                   <span>
                     {demo
                       ? "Sample subscriptions and illustrative prices · No real accounts changed"
-                      : "Private workspace · USD"}
+                      : `Private workspace · ${currency}`}
                   </span>
                 </footer>
               </div>
@@ -752,7 +837,10 @@ export default function App() {
         />
       )}
       {modal === "add-data" && (
-        <AddDataChooser onClose={() => setModal(null)} onChoose={(c) => setModal(c)} />
+        <AddDataChooser
+          onClose={() => setModal(null)}
+          onChoose={(c) => setModal(c)}
+        />
       )}
       {(modal === "csv" || modal === "email") && data && (
         <ImportFlow
@@ -773,14 +861,18 @@ export default function App() {
           onClose={() => setModal(null)}
           onSave={async () => {
             await refresh();
-            notify(modal === "edit" ? "Subscription updated." : "Subscription added.");
+            notify(
+              modal === "edit"
+                ? "Subscription updated."
+                : "Subscription added.",
+            );
             setModal(null);
           }}
         />
       )}
       {modal === "workspace" && data && (
         <WorkspacePanel
-          workspace={data}
+          workspace={fullData!}
           onClose={() => setModal(null)}
           onWorkspace={(ws) => {
             setData(ws);
@@ -838,7 +930,7 @@ export default function App() {
         <Suspense fallback={null}>
           <AgentChat
             onClose={() => setChat(false)}
-            subscriptions={data.subscriptions}
+            subscriptions={fullData!.subscriptions}
             onOpenSubscription={(id) => {
               setChat(false);
               open({ id });
@@ -876,9 +968,11 @@ function Metric({
 }
 
 function RecordedStrip({
+  currency,
   savings,
   demo,
 }: {
+  currency: string;
   savings: ReturnType<typeof savingsSummary>;
   demo: boolean;
 }) {
@@ -886,16 +980,22 @@ function RecordedStrip({
   if (savings.recorded > 0)
     items.push({ label: "Recorded reductions", value: savings.recorded });
   if (savings.recordedProjected > 0)
-    items.push({ label: "Recorded, takes effect later", value: savings.recordedProjected });
+    items.push({
+      label: "Recorded, takes effect later",
+      value: savings.recordedProjected,
+    });
   if (demo && savings.demoApplied > 0)
     items.push({ label: "Demo ledger reductions", value: savings.demoApplied });
   if (!items.length) return null;
   return (
-    <section className="recorded-strip" aria-label="Recorded monthly reductions">
+    <section
+      className="recorded-strip"
+      aria-label="Recorded monthly reductions"
+    >
       {items.map((i) => (
         <span key={i.label}>
           <Check size={14} />
-          {i.label} <strong>{money(i.value)}/mo</strong>
+          {i.label} <strong>{formatMoney(i.value, currency)}/mo</strong>
         </span>
       ))}
       <small>From changes you recorded. Not bank-verified.</small>
@@ -971,6 +1071,8 @@ function SavingsPage({
   onDismiss: (id: string, dismissed: boolean) => Promise<void>;
   onNavigate: (p: Page) => void;
 }) {
+  const money = (n: number) =>
+    formatMoney(n, workspace.subscriptions[0]?.currency);
   const dismissedCount = (workspace.dismissedOpportunityIds ?? []).length;
   return (
     <>
@@ -991,7 +1093,9 @@ function SavingsPage({
       </div>
       <div className="recommendations-grid">
         {recs.map((r) => {
-          const s = workspace.subscriptions.find((x) => x.id === r.subscriptionId);
+          const s = workspace.subscriptions.find(
+            (x) => x.id === r.subscriptionId,
+          );
           if (!s) return null;
           const evidence = s.evidence.find((e) => e.id === r.evidenceId);
           return (
@@ -1027,9 +1131,18 @@ function SavingsPage({
               <p className="rec-caveat">{r.caveat}</p>
               <button
                 className="button primary full"
-                onClick={() => onOpen(s, r.savings > 0 || r.kind === "cancel" ? "change" : "alternatives")}
+                onClick={() =>
+                  onOpen(
+                    s,
+                    r.savings > 0 || r.kind === "cancel"
+                      ? "change"
+                      : "alternatives",
+                  )
+                }
               >
-                {r.savings > 0 || r.kind === "cancel" ? "Review change" : "Confirm a price"}{" "}
+                {r.savings > 0 || r.kind === "cancel"
+                  ? "Review change"
+                  : "Confirm a price"}{" "}
                 <ArrowUpRight size={16} />
               </button>
               <button
@@ -1045,13 +1158,20 @@ function SavingsPage({
         {!recs.length && (
           <div className="empty-state">
             <Sparkles size={30} />
-            <h3>{dismissedCount ? "You’re all caught up." : "Nothing to suggest yet."}</h3>
+            <h3>
+              {dismissedCount
+                ? "You’re all caught up."
+                : "Nothing to suggest yet."}
+            </h3>
             <p>
               {dismissedCount
                 ? "Dismissed suggestions can be restored from each subscription."
                 : "Add usage or a check-in. Missing data never means unused."}
             </p>
-            <button className="button primary" onClick={() => onNavigate("subscriptions")}>
+            <button
+              className="button primary"
+              onClick={() => onNavigate("subscriptions")}
+            >
               Review subscriptions
             </button>
           </div>
@@ -1077,6 +1197,8 @@ function ActivityPage({
   onOpenAction: (a: Action) => void;
   onNavigate: (p: Page) => void;
 }) {
+  const money = (n: number) =>
+    formatMoney(n, workspace.subscriptions[0]?.currency);
   const outcomes = latestOutcomes(workspace.outcomes);
   return (
     <>
@@ -1117,7 +1239,9 @@ function ActivityPage({
                 <span
                   className={`badge ${a.status === "completed" ? "green" : a.status === "failed" || a.status === "awaiting_approval" ? "amber" : "gray"}`}
                 >
-                  {a.status === "awaiting_approval" ? "needs approval" : a.status.replaceAll("_", " ")}
+                  {a.status === "awaiting_approval"
+                    ? "needs approval"
+                    : a.status.replaceAll("_", " ")}
                 </span>
                 <ChevronRight size={17} />
               </button>
@@ -1127,7 +1251,10 @@ function ActivityPage({
             <Activity size={32} />
             <h3>Nothing happens without you.</h3>
             <p>Proposals you prepare and their results appear here.</p>
-            <button className="button primary" onClick={() => onNavigate("savings")}>
+            <button
+              className="button primary"
+              onClick={() => onNavigate("savings")}
+            >
               Explore savings
             </button>
           </div>
@@ -1145,17 +1272,20 @@ function ActivityPage({
               </span>
               <div>
                 <strong>
-                  {o.kind === "cancel" ? "Cancelled" : "Changed plan"} · {o.subscriptionName}
+                  {o.kind === "cancel" ? "Cancelled" : "Changed plan"} ·{" "}
+                  {o.subscriptionName}
                 </strong>
                 <small>
-                  {o.source === "demo" ? "Demo ledger" : "Recorded by you"} · effective{" "}
-                  {dateLabel(o.effectiveDate, true)}
+                  {o.source === "demo" ? "Demo ledger" : "Recorded by you"} ·
+                  effective {dateLabel(o.effectiveDate, true)}
                   {o.kind === "plan"
                     ? ` · ${o.after.plan} ${money(o.after.price)}/${per(o.after.cycle)}`
                     : ""}
                 </small>
               </div>
-              <span className={`badge ${o.source === "demo" ? "gray" : "green"}`}>
+              <span
+                className={`badge ${o.source === "demo" ? "gray" : "green"}`}
+              >
                 {money(o.monthlyReduction)}/mo
               </span>
             </div>

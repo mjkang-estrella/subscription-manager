@@ -30,7 +30,9 @@ export function SubscriptionForm({
           body: JSON.stringify({
             ...body,
             price: Number(body.price),
-            currency: "USD",
+            confirmPrice: true,
+            confirmActive: body.confirmActive === "on",
+            currency: initial?.currency ?? "USD",
             ...(initial?.hasDataToMove !== undefined
               ? { hasDataToMove: initial.hasDataToMove }
               : {}),
@@ -63,7 +65,8 @@ export function SubscriptionForm({
           />
         </label>
         <label className="span-two">
-          Website <span className="optional">Optional, used for logo and links</span>
+          Website{" "}
+          <span className="optional">Optional, used for logo and links</span>
           <input
             name="domain"
             placeholder="e.g. spotify.com"
@@ -82,15 +85,17 @@ export function SubscriptionForm({
           />
         </label>
         <label>
-          Price (USD) *
+          Price ({initial?.currency ?? "USD"}) *
           <input
             type="number"
             name="price"
             min="0"
-            max="100000"
+            max="100000000"
             step="0.01"
             placeholder="11.99"
-            defaultValue={initial?.price}
+            defaultValue={
+              initial?.priceKnown === false ? undefined : initial?.price
+            }
             required
           />
         </label>
@@ -130,10 +135,16 @@ export function SubscriptionForm({
             maxLength={3000}
           />
         </label>
+        {initial?.status === "unconfirmed" && (
+          <label className="checkbox-label span-two">
+            <input type="checkbox" name="confirmActive" />I checked: this
+            subscription and these billing terms are still active.
+          </label>
+        )}
         {initial && (
           <p className="small-note span-two">
-            To record a cancellation or plan change, use the Change tab so
-            Folio keeps the before and after terms.
+            To record a cancellation or plan change, use the Change tab so Folio
+            keeps the before and after terms.
           </p>
         )}
         {error && (

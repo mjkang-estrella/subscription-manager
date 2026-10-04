@@ -22,7 +22,7 @@ export const sourceUrlSchema = z
 export const offerTermsSchema = z.object({
   kind: z.enum(["downgrade", "yearly", "migrate"]),
   plan: z.string().trim().min(1).max(100),
-  price: z.number().finite().min(0).max(100000),
+  price: z.number().finite().min(0).max(100000000),
   cycle: z.enum(["monthly", "yearly"]),
   capabilityLoss: z.string().trim().min(1).max(1500),
   migrationEffort: z.string().max(1500).optional(),

@@ -51,7 +51,7 @@ export function calendarFeed(workspace: Workspace, asOf = today()): string {
           `DTSTAMP:${stamp}`,
           `DTSTART;VALUE=DATE:${date.replaceAll("-", "")}`,
           `DTEND;VALUE=DATE:${end.toISOString().slice(0, 10).replaceAll("-", "")}`,
-          `SUMMARY:${escapeText(`${s.name} · ${money(effective.price)}`)}`,
+          `SUMMARY:${escapeText(`${s.name} · ${money(effective.price, s.currency)}`)}`,
           "BEGIN:VALARM",
           "TRIGGER:-P1D",
           "ACTION:DISPLAY",

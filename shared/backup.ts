@@ -11,9 +11,9 @@ const date = z
     "Invalid date",
   );
 const timestamp = z.string().datetime();
-const amount = z.number().finite().min(0).max(100000);
+const amount = z.number().finite().min(0).max(100000000);
 const cycle = z.enum(["monthly", "yearly"]);
-const status = z.enum(["active", "cancel_pending", "cancelled"]);
+const status = z.enum(["active", "cancel_pending", "cancelled", "unconfirmed"]);
 const httpUrl = z
   .string()
   .max(2000)
@@ -34,6 +34,7 @@ const evidence = z.object({
     "Check-in",
   ]),
   summary: text(4000),
+  sourceUrl: httpUrl.optional(),
   observedAt: date,
   confidence: z.enum(["High", "Medium", "Low"]),
   metric: z.enum(["days", "uses", "quota", "other"]).optional(),
@@ -72,7 +73,7 @@ const subscription = terms
     id: text(100).min(1),
     name: text(100).min(1),
     domain: text(160),
-    currency: z.literal("USD"),
+    currency: z.enum(["USD", "KRW", "EUR", "GBP", "JPY", "CAD", "AUD", "TRY"]),
     category: z.enum([
       "Productivity",
       "Entertainment",
@@ -87,6 +88,8 @@ const subscription = terms
     evidence: z.array(evidence).max(1000),
     notes: text(),
     createdAt: timestamp,
+    priceKnown: z.boolean().optional(),
+    billingNote: text(200).optional(),
     hasDataToMove: z.boolean().optional(),
     charges: z
       .array(
@@ -94,9 +97,19 @@ const subscription = terms
           id: text(100),
           date,
           amount,
-          currency: z.literal("USD"),
+          currency: z.enum([
+            "USD",
+            "KRW",
+            "EUR",
+            "GBP",
+            "JPY",
+            "CAD",
+            "AUD",
+            "TRY",
+          ]),
           source: z.enum(["CSV", "Email", "Manual"]),
           description: text(1000).optional(),
+          sourceUrl: httpUrl.optional(),
         }),
       )
       .max(10000)
@@ -135,7 +148,7 @@ const outcome = z.object({
   after: terms,
   effectiveDate: date,
   recordedAt: timestamp,
-  monthlyReduction: z.number().finite().min(-100000).max(100000),
+  monthlyReduction: z.number().finite().min(-100000000).max(100000000),
   note: text().optional(),
 });
 const action = z.object({

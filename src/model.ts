@@ -151,7 +151,10 @@ export function renewalQueue(ws: Workspace, asOf = today(), limit = 6) {
   for (const c of candidates.filter((c) => c.v.recommendation))
     add({ sub: c.sub, verdict: c.v, renewal: c.renewal, reason: "change" });
   for (const c of candidates.filter(
-    (c) => c.v.kind === "needs_evidence" && c.v.evidence && !evidenceIsFresh(c.v.evidence, asOf),
+    (c) =>
+      c.v.kind === "needs_evidence" &&
+      c.v.evidence &&
+      !evidenceIsFresh(c.v.evidence, asOf),
   ))
     add({ sub: c.sub, verdict: c.v, renewal: c.renewal, reason: "stale" });
   const largestUnknown = candidates
@@ -194,7 +197,12 @@ export function sinceLastVisit(
       const prev = charges[i - 1],
         next = charges[i];
       if (next.date > sinceDay && Math.abs(next.amount - prev.amount) >= 0.01)
-        priceChanges.push({ sub, from: prev.amount, to: next.amount, date: next.date });
+        priceChanges.push({
+          sub,
+          from: prev.amount,
+          to: next.amount,
+          date: next.date,
+        });
     }
   }
   const projectedRenewals: Upcoming[] = [];
@@ -217,7 +225,8 @@ export function sinceLastVisit(
       (sub.alerts ?? []).map((text) => ({ sub, text })),
     ),
     completedActions: ws.actions.filter(
-      (a) => a.status === "completed" && (a.completedAt ?? "") > previousVisitAt,
+      (a) =>
+        a.status === "completed" && (a.completedAt ?? "") > previousVisitAt,
     ),
     projectedRenewals,
   };
@@ -226,12 +235,12 @@ export function sinceLastVisit(
 export const visitHasNews = (v: VisitSummary | null) =>
   Boolean(
     v &&
-      (v.newSubscriptions.length ||
-        v.outcomes.length ||
-        v.priceChanges.length ||
-        v.alerts.length ||
-        v.completedActions.length ||
-        v.projectedRenewals.length),
+    (v.newSubscriptions.length ||
+      v.outcomes.length ||
+      v.priceChanges.length ||
+      v.alerts.length ||
+      v.completedActions.length ||
+      v.projectedRenewals.length),
   );
 
 function monthsBetween(from: string, to: string) {
@@ -253,8 +262,11 @@ export function usableOffers(sub: Subscription, kind?: PlanOffer["kind"]) {
       offerIsFresh(o) &&
       (sub.source === "Demo" || o.provenance !== "demo") &&
       monthly(o) < monthly(sub) &&
-      (o.kind !== "yearly" || (sub.cycle === "monthly" && o.cycle === "yearly")) &&
-      (o.kind !== "migrate" || sub.hasDataToMove === true || sub.source === "Demo"),
+      (o.kind !== "yearly" ||
+        (sub.cycle === "monthly" && o.cycle === "yearly")) &&
+      (o.kind !== "migrate" ||
+        sub.hasDataToMove === true ||
+        sub.source === "Demo"),
   );
 }
 
@@ -365,7 +377,8 @@ export function safeLinks(links: unknown, subs: Subscription[]): ChatLink[] {
   for (const l of links) {
     if (!l || typeof l !== "object") continue;
     const { label, subscriptionId } = l as Record<string, unknown>;
-    if (typeof subscriptionId !== "string" || !ids.has(subscriptionId)) continue;
+    if (typeof subscriptionId !== "string" || !ids.has(subscriptionId))
+      continue;
     if (seen.has(subscriptionId)) continue;
     seen.add(subscriptionId);
     const name = subs.find((s) => s.id === subscriptionId)!.name;
@@ -437,7 +450,9 @@ export function safeHttpUrl(url: string | undefined): string | undefined {
   if (!url) return undefined;
   try {
     const u = new URL(url);
-    return u.protocol === "https:" || u.protocol === "http:" ? u.href : undefined;
+    return u.protocol === "https:" || u.protocol === "http:"
+      ? u.href
+      : undefined;
   } catch {
     return undefined;
   }
@@ -456,10 +471,12 @@ export function merchantSite(sub: Pick<Subscription, "domain">) {
 }
 
 export const statusLabel = (s: Subscription, asOf = today()) =>
-  !isCurrent(s, asOf)
-    ? "Cancelled"
-    : s.status === "cancel_pending"
-      ? "Ends"
-      : s.scheduledChange
-        ? "Plan change"
-        : "Active";
+  s.status === "unconfirmed"
+    ? "Needs confirmation"
+    : !isCurrent(s, asOf)
+      ? "Cancelled"
+      : s.status === "cancel_pending"
+        ? "Ends"
+        : s.scheduledChange
+          ? "Plan change"
+          : "Active";

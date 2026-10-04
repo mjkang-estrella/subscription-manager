@@ -29,6 +29,10 @@ const prepareSchema = z.object({
 export function prepareAction(d: Workspace, input: PrepareInput): Action {
   const s = d.subscriptions.find((s) => s.id === input.subscriptionId);
   if (!s) throw conflict("Subscription not found.");
+  if (s.currency !== "USD")
+    throw conflict(
+      "Controlled merchant tests currently support USD accounts only.",
+    );
   if (s.status !== "active" || s.scheduledChange)
     throw conflict(
       "This subscription already has a recorded change or is inactive.",
