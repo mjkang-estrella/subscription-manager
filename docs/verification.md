@@ -16,3 +16,5 @@ Verified on October 4, 2026.
 - Private preview access gate kept the shared test preview behind a session token. No credentials or private account data appear in screenshots.
 
 Gmail OAuth was not exercised because Google OAuth app credentials were not supplied. No real merchant cancellation or migration was performed. Real account authentication remains a user action in the isolated browser; all tested execution used synthetic accounts and records.
+
+UI update: replaced the monthly bar projection with a composition donut, sorted by monthly equivalent cost. Verified the $135.45 sample total, GitHub annual normalization ($48/year to $4/month), 44px legend controls, opening subscription details, and 390px/1440px layouts. The chart panel had no automated axe violations; TypeScript and the production build passed.

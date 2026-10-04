@@ -3982,3 +3982,140 @@ td {
 .sort-box select {
   max-width: 10rem;
 }
+
+/* Monthly cost composition pairs a visual overview with exact, operable values. */
+.composition {
+  --composition-1: #22664d;
+  --composition-2: #83a574;
+  --composition-3: #c9a44c;
+  --composition-4: #648fa4;
+  --composition-5: #9682b0;
+  --composition-6: #c07a5a;
+  --composition-7: #546570;
+  --composition-8: #bd8ca0;
+  display: grid;
+  grid-template-columns: minmax(180px, 0.85fr) minmax(0, 1.4fr);
+  align-items: center;
+  gap: 24px;
+  padding: 8px 24px 24px;
+}
+.composition-visual {
+  position: relative;
+  width: 100%;
+  max-width: 260px;
+  margin-inline: auto;
+}
+.composition-visual svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.composition-track {
+  fill: none;
+  stroke: var(--surface-subtle);
+  stroke-width: 28;
+}
+.composition-total {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 3px;
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
+.composition-total strong {
+  font-size: clamp(1.25rem, 2.2vw, 1.875rem);
+  letter-spacing: -0.025em;
+}
+.composition-total span {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+.composition-total small {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  margin-top: 7px;
+  max-width: 60%;
+}
+.composition-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.composition-legend button {
+  width: 100%;
+  min-height: 44px;
+  display: grid;
+  grid-template-columns: 9px minmax(0, 1fr) 3.3rem 4rem;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  color: var(--text);
+  text-align: left;
+  font-size: 0.8125rem;
+}
+.composition-legend button:hover,
+.composition-legend button:focus-visible {
+  background: var(--surface-subtle);
+}
+.composition-legend li + li {
+  border-top: 1px solid var(--border);
+}
+.composition-swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.composition-name {
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+.composition-share {
+  text-align: right;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.composition-legend strong {
+  text-align: right;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.composition-empty {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.composition-footer {
+  gap: 8px 16px;
+  flex-wrap: wrap;
+}
+@media (max-width: 1200px) {
+  .composition {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .composition-visual {
+    max-width: 240px;
+  }
+}
+@media (max-width: 760px) {
+  .composition {
+    padding: 4px 16px 20px;
+  }
+  .composition-total strong {
+    font-size: 1.75rem;
+  }
+  .composition-legend button {
+    grid-template-columns: 9px minmax(0, 1fr) 3rem 3.6rem;
+    gap: 8px;
+  }
+}

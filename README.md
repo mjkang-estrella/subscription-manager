@@ -26,7 +26,7 @@ The app creates an isolated workspace for each browser using a random HttpOnly, 
 
 ## Features
 
-- Dashboard with monthly equivalent costs, scheduled monthly charges, six-month payment projections, and savings opportunities.
+- Dashboard with monthly equivalent costs, scheduled monthly charges, an interactive subscription-composition donut, and savings opportunities.
 - Subscription create/edit, search, sorting, category filtering, CSV export, and payment calendar.
 - Card CSV import with grouped candidates, editable review, currency validation, and duplicate detection.
 - Receipt text / `.eml` extraction through the gateway, plus optional Gmail read-only OAuth.
@@ -68,7 +68,7 @@ For Gmail, enable the Gmail API in your Google Cloud project, configure an OAuth
 
 - **All write actions are sandbox-only.** They operate isolated merchant fixtures loaded into real Kernel browsers. They do not cancel or migrate a real service. Test-plan prices are explicitly illustrative. The runner is generic over visible button names, but real-world merchant compatibility is not claimed.
 - Real account inspection is read-only from the agent's side. The user signs in and navigates to a usage page in the live browser, then reviews the extracted draft. Sessions expire and are closed after saving.
-- Payment projections are based on saved billing schedules, not confirmed bank transactions. Bank aggregation is not implemented; use CSV imports.
+- Scheduled payments are based on saved billing schedules, not confirmed bank transactions. Bank aggregation is not implemented; use CSV imports.
 - The usage companion sees only browser visits in the selected time window. Mobile use, offline use, shared accounts, data dependencies, and subscription benefits require other evidence. Missing/stale evidence never automatically becomes zero usage.
 - Cancellation savings are hypothetical. Non-demo downgrade savings remain unknown until actual plan pricing is verified.
 - Receipt `.eml` import handles text content via the model; complex MIME/attachment extraction is not implemented.

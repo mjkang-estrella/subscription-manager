@@ -67,6 +67,7 @@ import {
   ActionProgress,
   useDrawerFocus,
 } from "./components";
+import { SubscriptionComposition } from "./SubscriptionComposition";
 const AgentChat = lazy(() => import("./AgentChat"));
 const NAV = [
   { id: "overview", name: "Overview", icon: LayoutDashboard },
@@ -561,23 +562,17 @@ export default function App() {
                     <section className="panel spending-panel">
                       <div className="panel-heading">
                         <div>
-                          <h2>
-                            Spending outlook{" "}
-                            <span className="muted-tag">Projected</span>
-                          </h2>
-                          <p>Your upcoming subscription payments</p>
+                          <h2>Subscription breakdown</h2>
+                          <p>Where your monthly subscription budget goes</p>
                         </div>
-                        <span className="chart-period">
-                          Next 6 months <CalendarDays size={14} />
-                        </span>
                       </div>
-                      <SpendingChart subscriptions={active} />
-                      <div className="chart-footer">
-                        <span>
-                          <i className="legend-dot" />
-                          Scheduled payments
-                        </span>
-                        <span>Annual plans appear in their renewal month</span>
+                      <SubscriptionComposition
+                        subscriptions={active}
+                        onSelect={setSelected}
+                      />
+                      <div className="chart-footer composition-footer">
+                        <span>Share of monthly cost</span>
+                        <span>Annual plans divided by 12</span>
                       </div>
                     </section>
                     <section className="savings-spotlight">
@@ -1387,64 +1382,6 @@ function Metric({
       <div className="metric-value">{value}</div>
       <div className="metric-detail">{detail}</div>
     </section>
-  );
-}
-function SpendingChart({ subscriptions }: { subscriptions: Subscription[] }) {
-  const months = Array.from({ length: 6 }, (_, i) => {
-    const date = new Date();
-    date.setDate(1);
-    date.setMonth(date.getMonth() + i);
-    const key = date.toISOString().slice(0, 7);
-    return {
-      key,
-      label: monthName(date, true),
-      total: subscriptions.reduce(
-        (sum, s) => sum + (billingInMonth(s, key) ? s.price : 0),
-        0,
-      ),
-    };
-  });
-  const max = Math.max(
-    100,
-    Math.ceil(Math.max(...months.map((m) => m.total)) / 50) * 50,
-  );
-  return (
-    <div className="spending-chart">
-      <div className="chart-y-axis">
-        {[1, 0.75, 0.5, 0.25, 0].map((n) => (
-          <span key={n}>${Math.round(max * n)}</span>
-        ))}
-      </div>
-      <div className="chart-plot">
-        <div className="grid-lines">
-          {[0, 1, 2, 3, 4].map((n) => (
-            <i key={n} />
-          ))}
-        </div>
-        <div className="chart-bars">
-          {months.map((m, i) => (
-            <div className="bar-column" key={m.key}>
-              <div
-                className={`bar ${i === 0 ? "current" : ""}`}
-                style={{ height: `${Math.max(1, (m.total / max) * 100)}%` }}
-                role="img"
-                tabIndex={0}
-                aria-label={`${m.label}: ${money(m.total)} scheduled`}
-              >
-                <span className="bar-tooltip">{money(m.total)}</span>
-                {i === 0 && (
-                  <span className="bar-top-label">{money(m.total)}</span>
-                )}
-              </div>
-              <span className={`bar-month ${i === 0 ? "current" : ""}`}>
-                {m.label}
-                {i === 0 && <i />}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
   );
 }
 function SubscriptionForm({
