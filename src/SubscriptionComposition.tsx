@@ -57,6 +57,8 @@ export function SubscriptionComposition({
                 strokeDasharray={`${slice.share * 100} ${100 - slice.share * 100}`}
                 strokeDashoffset={-slice.offset}
                 transform="rotate(-90 120 120)"
+                onMouseEnter={() => setHovered(slice.subscription.id)}
+                onMouseLeave={() => setHovered(null)}
                 opacity={
                   highlighted && highlighted !== slice.subscription.id
                     ? 0.25
@@ -79,6 +81,7 @@ export function SubscriptionComposition({
             <li key={subscription.id}>
               <button
                 type="button"
+                className={highlighted === subscription.id ? "is-highlighted" : undefined}
                 onClick={() => onSelect(subscription)}
                 onMouseEnter={() => setHovered(subscription.id)}
                 onMouseLeave={() => setHovered(null)}

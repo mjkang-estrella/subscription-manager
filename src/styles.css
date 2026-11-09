@@ -4038,6 +4038,7 @@ td {
   font-size: 0.8125rem;
 }
 .composition-legend button:hover,
+.composition-legend button.is-highlighted,
 .composition-legend button:focus-visible {
   background: var(--surface-subtle);
 }
