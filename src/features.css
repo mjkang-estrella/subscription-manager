@@ -1222,9 +1222,6 @@ tr.is-ended .service-logo,
     align-items: center;
     justify-content: center;
   }
-  .assistant-fab {
-    display: none;
-  }
   .demo-pill {
     padding: 6px 8px;
   }

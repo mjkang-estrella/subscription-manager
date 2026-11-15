@@ -1,0 +1,279 @@
+/* -----------------------------------------------------------------------
+   Layout rhythm. Earlier rules accumulated per-breakpoint values
+   (17/18/19/22/23/24px) that put headings, rows and controls on different
+   edges. This block is the single source for panel insets and section gaps,
+   so this file is imported last.
+   --------------------------------------------------------------------- */
+:root {
+  --inset: 22px;
+  --gap: 20px;
+  --control-h: 44px;
+}
+@media (max-width: 1250px) {
+  :root {
+    --inset: 18px;
+    --gap: 16px;
+  }
+}
+@media (max-width: 760px) {
+  :root {
+    --inset: 16px;
+  }
+}
+
+/* Section spacing */
+.metrics,
+.overview-grid {
+  gap: var(--gap);
+  margin-bottom: var(--gap);
+}
+.lower-grid,
+.right-column {
+  gap: var(--gap);
+}
+.visit-summary,
+.recorded-strip {
+  margin-bottom: var(--gap);
+}
+.public-main .metrics,
+.public-composition,
+.public-main .subscriptions-panel {
+  margin-bottom: var(--gap);
+}
+@media (min-width: 1251px) {
+  .overview-grid,
+  .lower-grid {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+}
+@media (max-width: 760px) {
+  .page.page-overview {
+    gap: var(--gap);
+  }
+  .page.page-overview > *,
+  .page.page-overview .visit-summary,
+  .page.page-overview .recorded-strip {
+    margin-bottom: 0;
+  }
+  /* The footer closes the page; without an order it jumped above the cards. */
+  .page.page-overview .page-footer {
+    order: 10;
+    margin-top: 0;
+  }
+}
+
+/* Metric cards: same inset as panels, footnotes pinned to one baseline. */
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--inset);
+}
+.metric-card .metric-detail {
+  margin-top: auto;
+  padding-top: 12px;
+}
+.metric-detail .metric-link {
+  position: relative;
+  min-height: 0;
+  width: 100%;
+  padding: 0;
+  justify-content: space-between;
+}
+
+/* Hit areas stay 44px without adding layout height. */
+.metric-detail .metric-link::after,
+.service-name::after {
+  content: "";
+  position: absolute;
+  inset: -10px -8px;
+}
+
+/* Panel content shares the heading's inset. */
+.panel-heading,
+.upcoming-panel .panel-heading {
+  padding: 20px var(--inset) 0;
+}
+.panel-subtitle,
+.decisions-panel .notice {
+  margin-inline: var(--inset);
+}
+.upcoming-list,
+.decision-list,
+.decisions-empty {
+  padding-inline: var(--inset);
+}
+.chart-footer {
+  padding: 14px var(--inset);
+}
+.table-tools {
+  padding-inline: var(--inset);
+}
+thead th:first-child,
+td:first-child {
+  padding-left: var(--inset);
+}
+.public-renewal {
+  padding-inline: var(--inset);
+}
+
+/* Subscription breakdown: the total stays beside the list it summarises. */
+.composition {
+  padding: 8px var(--inset) var(--inset);
+  align-items: start;
+}
+@media (min-width: 1201px) {
+  .spending-panel,
+  .public-composition {
+    overflow: clip;
+  }
+  .composition-visual {
+    position: sticky;
+    top: var(--gap);
+    margin-top: 8px;
+  }
+}
+
+/* Service name and plan read as one unit. */
+.service-name {
+  position: relative;
+  display: block;
+  min-height: 0;
+  line-height: 1.35;
+}
+.service-cell small {
+  margin-top: 2px;
+}
+
+/* Renewal decisions: logo aligns with the name, not the block centre. */
+.decision-main {
+  align-items: flex-start;
+}
+.decision-main .service-logo {
+  margin-top: 2px;
+}
+.decision-amount {
+  padding-top: 1px;
+}
+
+/* Filter controls: one height, one type size, one border. */
+.table-controls {
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 12px;
+}
+.table-controls > select.sort-box,
+.table-controls .search-box,
+.table-controls label.sort-box {
+  height: var(--control-h);
+  min-height: var(--control-h);
+  border: 1px solid var(--control-border);
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 0.875rem;
+  color: var(--text);
+}
+.table-controls > select.sort-box {
+  padding: 0 10px;
+  max-width: none;
+}
+.table-controls .search-box {
+  gap: 8px;
+  padding: 0 0 0 12px;
+}
+.table-controls .search-box svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+.table-controls .search-box input,
+.table-controls label.sort-box select {
+  height: 100%;
+  min-height: 0;
+  font-size: inherit;
+  color: inherit;
+}
+.table-controls .search-box input {
+  width: 10rem;
+  max-width: none;
+  padding: 0 12px 0 0;
+}
+.table-controls label.sort-box {
+  padding: 0 10px;
+}
+.table-controls label.sort-box select {
+  max-width: none;
+  padding: 0;
+}
+@media (max-width: 760px) {
+  /* Status and sort share a row; search gets the full width beneath. */
+  .table-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: row dense;
+  }
+  .table-controls .search-box {
+    grid-column: 1 / -1;
+  }
+  .table-controls .search-box input {
+    width: 100%;
+  }
+  /* 16px keeps iOS from zooming the page on focus. */
+  .table-controls > select.sort-box,
+  .table-controls .search-box,
+  .table-controls label.sort-box {
+    font-size: 1rem;
+  }
+}
+
+/* Ask Folio lives in the top bar instead of floating over content. */
+.topbar-right > .icon-button.topbar-assistant {
+  display: inline-flex;
+  gap: 6px;
+}
+@media (min-width: 761px) {
+  /* Borderless like the bell beside it, so the top bar keeps one height. */
+  .topbar-right > .icon-button.topbar-assistant {
+    padding: 0 12px;
+    color: var(--text-accent);
+    font-size: 0.8125rem;
+    font-weight: 550;
+  }
+  .topbar-right > .icon-button.topbar-assistant:hover {
+    background: var(--surface-accent);
+  }
+}
+@media (max-width: 760px) {
+  .topbar-assistant-label {
+    display: none;
+  }
+}
+
+/* Calendar footer: the disclaimer had its own padding inside the footer's. */
+.calendar-foot {
+  padding: 14px var(--inset) 18px;
+}
+.calendar-foot .calendar-disclaimer {
+  padding: 0;
+}
+
+/* An empty savings list spans the grid instead of filling one card slot. */
+.recommendations-grid > .empty-state {
+  grid-column: 1 / -1;
+  padding-block: 40px;
+}
+
+/* Long renewal details wrap evenly rather than leaving one orphaned word. */
+.decision-text small,
+.composition-name,
+.service-cell small {
+  text-wrap: pretty;
+}
+
+/* Public heading stays left-aligned when it stacks (it centred on phones). */
+.public-main .page-heading {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--gap);
+}

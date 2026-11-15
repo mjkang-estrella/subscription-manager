@@ -4,6 +4,7 @@ import App from "./App";
 import PublicDashboard from "./PublicDashboard";
 import "./styles.css";
 import "./features.css";
+import "./layout.css";
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     {window.location.pathname === "/workspace" ? <App /> : <PublicDashboard />}

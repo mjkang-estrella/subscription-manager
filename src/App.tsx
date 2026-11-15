@@ -469,7 +469,8 @@ export default function App() {
                 setChat(true);
               }}
             >
-              <Sparkles size={19} />
+              <Sparkles size={18} />
+              <span className="topbar-assistant-label">Ask Folio</span>
             </button>
           </div>
         </header>
@@ -800,19 +801,6 @@ export default function App() {
             )
           )}
         </main>
-        <button
-          className="assistant-fab"
-          onClick={() => {
-            setSidebar(false);
-            setChat(true);
-          }}
-        >
-          <Sparkles size={18} />
-          <span>Ask Folio</span>
-          <span className="shortcut">
-            <ArrowUpRight size={16} aria-hidden="true" />
-          </span>
-        </button>
       </div>
       {toast && (
         <div className="toast" role="status">

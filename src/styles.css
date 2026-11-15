@@ -1202,31 +1202,6 @@ td > small {
   gap: 6px;
   align-items: center;
 }
-.assistant-fab {
-  position: fixed;
-  bottom: 23px;
-  right: 28px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--green);
-  color: var(--on-brand);
-  border-radius: 9px;
-  padding: 12px 15px;
-  font-size: 0.75rem;
-  box-shadow: 0 4px 20px var(--shadow-color);
-  z-index: 20;
-}
-.assistant-fab:hover {
-  background: var(--green);
-}
-.shortcut {
-  font-size: 0.875rem;
-  color: var(--text-muted);
-  margin-left: 8px;
-  border-left: 1px solid var(--border-on-brand);
-  padding-left: 11px;
-}
 .mobile-menu {
   display: none;
 }
@@ -2764,11 +2739,6 @@ td > small {
     margin-top: 15px;
     margin-bottom: 45px;
   }
-  .assistant-fab {
-    right: 18px;
-    bottom: 18px;
-    font-size: 0.75rem;
-  }
   .calendar-grid {
     display: block;
   }
@@ -3316,7 +3286,6 @@ textarea:focus-visible,
 .button.compact,
 .text-button,
 .icon-button,
-.assistant-fab,
 .send-button,
 .calendar-link,
 .sidebar-link,
@@ -3361,17 +3330,14 @@ textarea::placeholder {
 }
 .button.primary,
 .brand-icon,
-.assistant-fab,
 .toast,
 .toast .icon-button,
 .bar-tooltip,
 .send-button,
-.calendar-day.today .day-number,
-.shortcut {
+.calendar-day.today .day-number {
   color: var(--on-brand);
 }
-.button.primary:hover,
-.assistant-fab:hover {
+.button.primary:hover {
   background: var(--green-dark);
 }
 .panel,
@@ -3846,9 +3812,6 @@ td,
     min-width: 150px;
   }
   .calendar-day button {
-    font-size: 0.875rem;
-  }
-  .assistant-fab {
     font-size: 0.875rem;
   }
   .chat-composer textarea,
