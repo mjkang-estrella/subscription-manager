@@ -32,6 +32,7 @@ export function SubscriptionForm({
             price: Number(body.price),
             confirmPrice: true,
             confirmActive: body.confirmActive === "on",
+            digital: body.digital === "on",
             currency: initial?.currency ?? "USD",
             ...(initial?.hasDataToMove !== undefined
               ? { hasDataToMove: initial.hasDataToMove }
@@ -126,6 +127,17 @@ export function SubscriptionForm({
             ))}
           </select>
         </label>
+        <label className="checkbox span-two">
+          <input
+            type="checkbox"
+            name="digital"
+            defaultChecked={initial?.digital !== false}
+          />
+          <span>
+            Digital service. Uncheck for a car, device cover, gym, or home
+            internet.
+          </span>
+        </label>
         <label className="span-two">
           Notes <span className="optional">Optional</span>
           <textarea
@@ -136,7 +148,7 @@ export function SubscriptionForm({
           />
         </label>
         {initial?.status === "unconfirmed" && (
-          <label className="checkbox-label span-two">
+          <label className="checkbox span-two">
             <input type="checkbox" name="confirmActive" />I checked: this
             subscription and these billing terms are still active.
           </label>

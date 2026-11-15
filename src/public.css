@@ -118,3 +118,9 @@
     padding: 14px 16px;
   }
 }
+.public-heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+}

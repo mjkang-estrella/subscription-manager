@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createWorkspace } from "../shared/domain.js";
+import { createWorkspace, isDigital } from "../shared/domain.js";
 import { publicHistory } from "../shared/publication.js";
 
 test("public snapshots retain billing facts without private workspace or email data", () => {
@@ -44,4 +44,12 @@ test("public snapshots retain billing facts without private workspace or email d
     "publishedAt",
     "subscriptions",
   ]);
+});
+
+test("public snapshots keep the digital flag so the dashboard can scope to digital services", () => {
+  const workspace = createWorkspace();
+  workspace.subscriptions[0].digital = false;
+  const result = publicHistory(workspace, "2026-11-15T00:00:00.000Z");
+  assert.equal(isDigital(result.subscriptions[0]), false);
+  assert.ok(result.subscriptions.slice(1).every(isDigital));
 });

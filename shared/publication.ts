@@ -23,6 +23,7 @@ export function publicHistory(
       cycle: s.cycle,
       nextBilling: s.nextBilling,
       category: s.category,
+      digital: s.digital,
       color: s.color,
       icon: s.icon,
       status: s.status,

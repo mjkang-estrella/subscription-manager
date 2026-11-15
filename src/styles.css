@@ -4127,3 +4127,22 @@ td {
   width: 24px;
   height: 24px;
 }
+
+/* Digital-only scope sits beside the currency select at the same 44px height. */
+.segmented-control.scope-control {
+  display: inline-flex;
+  flex: none;
+  gap: 2px;
+  padding: 3px;
+  margin: 0;
+}
+.segmented-control.scope-control button {
+  flex: none;
+  min-height: 38px;
+  padding: 0 14px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+.segmented-control.scope-control button.active {
+  font-weight: 550;
+}

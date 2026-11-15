@@ -23,6 +23,37 @@ export function isolateOverlay() {
   };
 }
 
+/** Digital-only by default; "All" adds cars, device cover, gyms and home internet. */
+export function ScopeToggle({
+  digitalOnly,
+  onChange,
+}: {
+  digitalOnly: boolean;
+  onChange: (digitalOnly: boolean) => void;
+}) {
+  return (
+    <div
+      className="segmented-control scope-control"
+      role="group"
+      aria-label="Subscriptions shown"
+    >
+      {[
+        { on: true, label: "Digital only" },
+        { on: false, label: "All" },
+      ].map((o) => (
+        <button
+          key={o.label}
+          className={digitalOnly === o.on ? "active" : ""}
+          aria-pressed={digitalOnly === o.on}
+          onClick={() => onChange(o.on)}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function Logo({
   sub,
   small = false,

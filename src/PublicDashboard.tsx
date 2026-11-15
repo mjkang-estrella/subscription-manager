@@ -9,10 +9,16 @@ import {
 import App from "./App";
 import type { PublicHistory } from "../shared/publication";
 import type { Subscription } from "../shared/types";
-import { isCurrent, money, monthly, nextRenewal } from "../shared/domain";
+import {
+  isCurrent,
+  isDigital,
+  money,
+  monthly,
+  nextRenewal,
+} from "../shared/domain";
 import { SubscriptionComposition } from "./SubscriptionComposition";
 import { SubscriptionList } from "./SubscriptionList";
-import { Logo, Modal } from "./components";
+import { Logo, Modal, ScopeToggle } from "./components";
 import { dateLabel, download, per } from "./format";
 import { subscriptionsCsv } from "./model";
 import "./public.css";
@@ -24,6 +30,7 @@ export default function PublicDashboard() {
   const [attempt, setAttempt] = useState(0);
   const [currency, setCurrency] = useState("USD");
   const [selected, setSelected] = useState<Subscription | null>(null);
+  const [digitalOnly, setDigitalOnly] = useState(true);
   useEffect(() => {
     const controller = new AbortController();
     setError("");
@@ -64,8 +71,9 @@ export default function PublicDashboard() {
       </main>
     );
   const subscriptions = data.subscriptions.filter(
-    (s) => s.currency === currency,
+    (s) => s.currency === currency && (!digitalOnly || isDigital(s)),
   );
+  const hasNonDigital = data.subscriptions.some((s) => !isDigital(s));
   const active = subscriptions.filter((s) => isCurrent(s));
   const unconfirmed = subscriptions.filter((s) => s.status === "unconfirmed");
   const ended = subscriptions.filter(
@@ -101,15 +109,23 @@ export default function PublicDashboard() {
         </header>
         <div className="page-heading">
           <h1>Subscription overview</h1>
-          <select
-            aria-label="Display currency"
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value)}
-          >
-            {currencies.map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </select>
+          <div className="public-heading-actions">
+            {hasNonDigital && (
+              <ScopeToggle
+                digitalOnly={digitalOnly}
+                onChange={setDigitalOnly}
+              />
+            )}
+            <select
+              aria-label="Display currency"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+            >
+              {currencies.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="metrics">
           {[

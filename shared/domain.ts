@@ -18,6 +18,9 @@ export const isCurrent = (s: Subscription, asOf = today()) =>
   s.status !== "cancelled" &&
   s.status !== "unconfirmed" &&
   (!s.endDate || s.endDate >= asOf);
+/** Software and online services; anything not marked otherwise counts. */
+export const isDigital = (s: Pick<Subscription, "digital">) =>
+  s.digital !== false;
 const dayInMonth = (year: number, month: number, day: number) =>
   `${year}-${String(month).padStart(2, "0")}-${String(Math.min(day, new Date(Date.UTC(year, month, 0)).getUTCDate())).padStart(2, "0")}`;
 export function billingInMonth(s: Subscription, month: string): string | null {

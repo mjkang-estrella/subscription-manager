@@ -91,6 +91,7 @@ const subscription = terms
     priceKnown: z.boolean().optional(),
     billingNote: text(200).optional(),
     hasDataToMove: z.boolean().optional(),
+    digital: z.boolean().optional(),
     charges: z
       .array(
         z.object({

@@ -40,12 +40,13 @@ import type {
 } from "../shared/types";
 import {
   money as formatMoney,
+  isDigital,
   monthly,
   recommendations,
   today,
 } from "../shared/domain";
 import { api, post } from "./api";
-import { Modal, Logo } from "./components";
+import { Modal, Logo, ScopeToggle } from "./components";
 import { SubscriptionComposition } from "./SubscriptionComposition";
 import { SubscriptionList } from "./SubscriptionList";
 import { SubscriptionDetail, type DetailTab } from "./SubscriptionDetail";
@@ -123,11 +124,12 @@ export default function App() {
     [monthOffset, setMonthOffset] = useState(0),
     [previousVisitAt, setPreviousVisitAt] = useState<string>(),
     [visitDismissed, setVisitDismissed] = useState(false),
-    [dismissing, setDismissing] = useState<string | null>(null);
+    [dismissing, setDismissing] = useState<string | null>(null),
+    [digitalOnly, setDigitalOnly] = useState(true);
   const data = useMemo(() => {
     if (!fullData) return null;
     const subscriptions = fullData.subscriptions.filter(
-      (s) => s.currency === currency,
+      (s) => s.currency === currency && (!digitalOnly || isDigital(s)),
     );
     const ids = new Set(subscriptions.map((s) => s.id));
     return {
@@ -135,7 +137,10 @@ export default function App() {
       subscriptions,
       outcomes: fullData.outcomes?.filter((o) => ids.has(o.subscriptionId)),
     };
-  }, [fullData, currency]);
+  }, [fullData, currency, digitalOnly]);
+  const hasNonDigital = Boolean(
+    fullData?.subscriptions.some((s) => !isDigital(s)),
+  );
   const currencies = [
     ...new Set(fullData?.subscriptions.map((s) => s.currency) ?? ["USD"]),
   ].sort();
@@ -480,6 +485,12 @@ export default function App() {
               <h1>{pageName}</h1>
             </div>
             <div className="heading-actions">
+              {hasNonDigital && (
+                <ScopeToggle
+                  digitalOnly={digitalOnly}
+                  onChange={setDigitalOnly}
+                />
+              )}
               {currencies.length > 1 && (
                 <select
                   aria-label="Display currency"

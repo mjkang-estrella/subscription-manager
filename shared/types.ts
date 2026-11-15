@@ -44,6 +44,8 @@ export type Subscription = {
   priceKnown?: boolean;
   billingNote?: string;
   hasDataToMove?: boolean;
+  /** False for a service billed for something physical: a car, device cover, a gym, home internet. */
+  digital?: boolean;
   charges?: Charge[];
   research?: Research;
   offers?: PlanOffer[];

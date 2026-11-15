@@ -41,6 +41,7 @@ export const subscriptionSchema = z.object({
     "Storage",
   ]),
   notes: z.string().max(3000).default(""),
+  digital: z.boolean().optional(),
 });
 export function newSubscription(
   input: z.infer<typeof subscriptionSchema>,
